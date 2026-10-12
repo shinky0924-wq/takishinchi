@@ -94,26 +94,26 @@ export default function JobDetails({ content, onCtaclickWithData }: JobDetailsPr
             <span>{content?.subtitle || 'SALARY & BENEFITS'}</span>
           </div>
           <h2 className="font-display font-extrabold text-2xl md:text-3xl lg:text-4xl mb-4 text-on-surface">
-            {content?.title || '滝井新地のお給料＆待遇'}
+            {content?.title || '当店のお給料＆待遇'}
           </h2>
           <p className="text-xs md:text-base text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-            接客1本あたりのバック額は30分8,000円と分かりやすく設定されています。<br className="hidden sm:inline" />
+            当店の接客1本あたりのバック額は30分8,000円と分かりやすく設定されています。<br className="hidden sm:inline" />
             衣装代やお菓子代などの雑費・天引きは完全0円！稼いだお給料をその日のうちに100%全額日払い（手渡し）でお持ち帰りいただけます。
           </p>
           <div className="h-1 w-16 bg-gradient-to-r from-secondary to-rose-300 mx-auto rounded-full mt-4" />
         </div>
 
-        {/* 組合一律固定バック給テーブル */}
+        {/* 当店の固定バック給テーブル */}
         <div className="bg-gradient-to-br from-rose-50/50 to-pink-50/30 border border-rose-100 rounded-3xl p-6 md:p-8 mb-12 shadow-xs">
           <div className="text-center mb-6">
             <span className="inline-block bg-secondary text-white text-[11px] font-black tracking-widest px-3 py-1 rounded-full uppercase mb-2">
               FIXED BACK SYSTEM
             </span>
             <h3 className="font-display font-extrabold text-lg md:text-2xl text-on-surface">
-              一律固定のバック給（30分コース）
+              当店の明瞭なバック給（30分コース）
             </h3>
             <p className="text-xs md:text-sm text-on-surface-variant mt-1">
-              基本単価は30分8,000円（15分などの超短時間コースなし）。全額日払い・手渡し支給！
+              当店の基本単価は30分8,000円（15分などの超短時間コースなし）。全額日払い・手渡し支給！
             </p>
           </div>
 
@@ -149,10 +149,10 @@ export default function JobDetails({ content, onCtaclickWithData }: JobDetailsPr
         <div className="mb-16">
           <div className="text-center mb-8">
             <h3 className="font-display font-bold text-xl md:text-2xl text-on-surface">
-              安心の充実待遇・サポート
+              当店の充実待遇・サポート
             </h3>
             <p className="text-xs md:text-sm text-on-surface-variant mt-1">
-              女の子が安心して長く稼げるよう、環境づくりに妥協しません
+              当店で女の子が安心して長く稼げるよう、環境づくりに妥協しません
             </p>
           </div>
 

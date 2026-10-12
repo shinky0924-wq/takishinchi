@@ -72,16 +72,15 @@ export interface SiteContent {
   };
 }
 
-export const SITE_CONTENT_VERSION = '20261012_takishinchi_clean_v9';
+export const SITE_CONTENT_VERSION = '20261012_takishinchi_clean_v10';
 export const DEFAULT_SITE_CONTENT: SiteContent = siteContentJson as any;
 
 export function sanitizeTakiiSiteContent(raw: any): any {
   if (!raw) return DEFAULT_SITE_CONTENT;
   const rawStr = JSON.stringify(raw);
-  // If stored content contains unnatural '当店' insertions or outdated phrases, reset to clean DEFAULT_SITE_CONTENT
+  // If stored content contains unnatural question phrasing or outdated area-wide phrases, reset to clean DEFAULT_SITE_CONTENT
   if (
     rawStr.includes('未経験でも当店で') ||
-    rawStr.includes('滝井新地の当店で') ||
     rawStr.includes('知識ゼロでも当店で') ||
     rawStr.includes('当店の年齢制限') ||
     rawStr.includes('当店のLINEで') ||
@@ -97,7 +96,9 @@ export function sanitizeTakiiSiteContent(raw: any): any {
     rawStr.includes('18歳') ||
     rawStr.includes('高校生不可') ||
     rawStr.includes('飛田ガールズ') ||
-    rawStr.includes('全店一斉閉店')
+    rawStr.includes('全店一斉閉店') ||
+    rawStr.includes('滝井新地が選ばれる6つの理由') ||
+    rawStr.includes('滝井新地のお給料＆待遇')
   ) {
     return DEFAULT_SITE_CONTENT;
   }

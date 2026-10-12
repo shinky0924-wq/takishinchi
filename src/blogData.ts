@@ -73,7 +73,7 @@ export function getValidArticleEyeCatch(art: { id?: string | number; slug?: stri
   return '/images/japanese_hero_banner.jpg';
 }
 
-const BLOG_DATA_VERSION = '20261012_takishinchi_articles_v9_clean';
+const BLOG_DATA_VERSION = '20261012_takishinchi_articles_v10_clean';
 
 export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
   if (!Array.isArray(articles)) return BLOG_ARTICLES;
@@ -87,9 +87,6 @@ export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
       const s = JSON.stringify(art);
       if (
         art.title !== cleanDefault.title ||
-        s.includes('滝井新地の当店') ||
-        s.includes('当店で働く') ||
-        s.includes('当店のお仕事') ||
         s.includes('飛田') ||
         s.includes('tobitashinchi-') ||
         s.includes('天王寺') ||
@@ -118,8 +115,8 @@ export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
       .replace(/満18歳以上（高校生不可）/g, '満20歳以上')
       .replace(/18歳（高校生不可）/g, '20歳以上')
       .replace(/18歳未満および高校生/g, '20歳未満の方')
-      .replace(/滝井新地の当店/g, '滝井新地')
-      .replace(/飛田新地料理組合/g, '滝井新地料理組合')
+      .replace(/飛田新地料理組合/g, '当店')
+      .replace(/滝井新地料理組合/g, '当店')
       .replace(/飛田新地/g, '滝井新地')
       .replace(/飛田ガールズ/g, '滝井ガールズ')
       .replace(/Tobita Girls/g, 'Takii Girls');

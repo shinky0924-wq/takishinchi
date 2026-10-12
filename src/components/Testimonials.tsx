@@ -117,7 +117,7 @@ export default function Testimonials() {
                 <div className="mt-8 pt-4 border-t border-rose-50/50 flex justify-between items-center text-xs text-on-surface-variant">
                   <span className="font-medium text-rose-800 flex items-center gap-1 bg-rose-50 px-2.5 py-1 rounded-full">
                     <LucideIcon name="CheckCircle" size={12} />
-                    滝井新地で働く女性の声
+                    当店で働く女性の声
                   </span>
                   
                   <button 

@@ -113,7 +113,7 @@ export default function JobRequirements() {
       content: (
         <div className="space-y-2 text-xs sm:text-sm text-on-surface-variant leading-relaxed">
           <p>
-            <strong>15:00〜24:00</strong>（※朝・昼からの営業はありません）
+            <strong>15:00〜24:00</strong>（当店の営業時間 ※朝・昼からの営業はありません）
           </p>
           <p className="text-xs sm:text-sm">
             ・週1日・1日3時間〜の短時間勤務からOK<br />
@@ -171,7 +171,7 @@ export default function JobRequirements() {
             募集要項
           </h2>
           <p className="font-sans text-xs md:text-sm text-on-surface-variant max-w-xl mx-auto leading-relaxed">
-            滝井新地で働くための応募資格・必要書類・勤務条件の概要です。
+            滝井新地の当店で働くための応募資格・必要書類・勤務条件の概要です。
           </p>
         </div>
 
