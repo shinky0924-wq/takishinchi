@@ -1156,9 +1156,9 @@ JSONスキーマ：
       const cardFileName = `card_${article.slug}.jpg`;
       const hasCard = fs.existsSync(path.join(projectRootDir, "public", "images", cardFileName)) ||
                       fs.existsSync(path.join(distPath, "images", cardFileName));
-      const fullImageUrl = hasCard ? `${baseUrl}/images/${cardFileName}` : toAbsoluteImageUrl(article.eyeCatch, baseUrl);
+      const fullImageUrl = hasCard ? `${baseUrl}/images/${cardFileName}?v=2` : toAbsoluteImageUrl(article.eyeCatch, baseUrl);
       const articleUrl = `${baseUrl}/blog/${article.slug}`;
-      const articleTitle = `${article.title} | 滝井ガールズ`;
+      const articleTitle = `滝井新地 ${article.title}`;
       const articleDesc = article.summary || `${article.title}についての詳しいお仕事解説記事です。`;
 
       let baseHtml = "";
@@ -1220,9 +1220,9 @@ JSONスキーマ：
       }
 
       let modifiedHtml = injectMetaIntoHtml(baseHtml, {
-        title: "お仕事コラム一覧 | 滝井ガールズ【公式求人】",
+        title: "滝井新地 お仕事コラム一覧",
         description: "滝井新地のお仕事コラム・お役立ち情報一覧。給料システム、面接対策、身バレ防止、未経験からの働き方などを詳しく解説しています。",
-        imageUrl: `${baseUrl}/images/col_ryotei_flow_1789107427433.jpg`,
+        imageUrl: `${baseUrl}/images/card_blog_index.jpg?v=2`,
         url: `${baseUrl}/blog`,
         type: "website",
       });

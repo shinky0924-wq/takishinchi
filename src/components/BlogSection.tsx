@@ -66,7 +66,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
     if (typeof document === 'undefined') return;
 
     if (currentArticle) {
-      const pageTitle = `${currentArticle.title} | 滝井ガールズ`;
+      const pageTitle = `滝井新地 ${currentArticle.title}`;
       document.title = pageTitle;
 
       const metaDesc = document.querySelector('meta[name="description"]');
@@ -79,7 +79,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
       if (ogDesc) ogDesc.setAttribute('content', currentArticle.summary);
 
       const origin = typeof window !== 'undefined' ? (window.location.hostname.includes('localhost') ? 'https://osaka-takiishinchi.pages.dev' : window.location.origin) : 'https://osaka-takiishinchi.pages.dev';
-      const fullImageUrl = `${origin}/images/card_${currentArticle.slug}.jpg`;
+      const fullImageUrl = `${origin}/images/card_${currentArticle.slug}.jpg?v=2`;
 
       const ogImage = document.querySelector('meta[property="og:image"]');
       if (ogImage) ogImage.setAttribute('content', fullImageUrl);

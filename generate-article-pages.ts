@@ -269,9 +269,9 @@ async function main() {
   }
 
   const blogListHtml = injectMetaIntoHtml(baseHtml, {
-    title: '滝井新地のお仕事コラム一覧 | 滝井ガールズ【公式求人】',
+    title: '滝井新地 お仕事コラム一覧',
     description: '滝井新地で安心デビューするためのコラム・完全ガイド一覧。給料システム（30分8,000円・雑費ゼロ）、面接対策、身バレ防止、未経験からの働き方などを詳しく解説しています。',
-    imageUrl: toAbsoluteImageUrl('/images/col_ryotei_flow_1789107427433.jpg', baseDomain),
+    imageUrl: `${baseDomain}/images/card_blog_index.jpg?v=2`,
     url: `${baseDomain}/blog`,
     type: 'website',
     bodyHtml: renderBlogListStaticHtml(articles, baseDomain)
@@ -288,13 +288,13 @@ async function main() {
       fs.mkdirSync(articleDir, { recursive: true });
     }
 
-    const cardRelativePath = `/images/card_${article.slug}.jpg`;
+    const cardRelativePath = `/images/card_${article.slug}.jpg?v=2`;
     const fullImageUrl = fs.existsSync(path.join(process.cwd(), 'public', 'images', `card_${article.slug}.jpg`))
       ? `${baseDomain}${cardRelativePath}`
       : toAbsoluteImageUrl(article.eyeCatch, baseDomain);
 
     const articleUrl = `${baseDomain}/blog/${article.slug}`;
-    const articleTitle = `${article.title} | 滝井ガールズ`;
+    const articleTitle = `滝井新地 ${article.title}`;
     const articleDesc = article.summary || `${article.title}についての詳しい解説記事です。`;
 
     const articleHtml = injectMetaIntoHtml(baseHtml, {

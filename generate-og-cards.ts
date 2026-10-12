@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { BLOG_ARTICLES } from './src/blogData';
 
 interface BlogArticle {
   id: string;
@@ -130,79 +131,51 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
 
   // Theme configuration
   const theme = CATEGORY_THEMES[article.category] || CATEGORY_THEMES['beginner'];
-  const categoryText = article.categoryLabel || theme.label;
 
   // Title breakdown
   const { badge: titleBadge, mainLines } = splitTitle(article.title);
-
-  // Summary lines (up to 2 lines, 30 chars each)
-  const summaryLines = wrapText(article.summary || '', 30, 2);
-
-  // Top 3 tags
-  const tags = (article.tags || []).slice(0, 3);
-
-  // SVG elements construction
-  const escapedCategory = escapeXml(categoryText);
   const escapedTitleBadge = escapeXml(titleBadge);
-  const escapedSummary1 = escapeXml(summaryLines[0] || '');
-  const escapedSummary2 = escapeXml(summaryLines[1] || '');
 
-  // Main title SVG lines
+  // Calculate vertical centering in the upper-middle safe zone (avoiding X's bottom title bar overlay)
+  const hasBadge = Boolean(escapedTitleBadge);
+  const totalLinesHeight = (hasBadge ? 64 : 0) + mainLines.length * 64;
+  const startY = Math.max(150, Math.round((520 - totalLinesHeight) / 2));
+
+  // Main title SVG lines (ONLY "滝井新地" + Title)
   let titleSvgLines = '';
   let yOffset = 0;
 
   if (escapedTitleBadge) {
     titleSvgLines += `
       <g transform="translate(0, 0)">
-        <rect x="0" y="0" width="${Math.min(680, escapedTitleBadge.length * 26 + 32)}" height="42" rx="8" fill="${theme.badgeFrom}" fill-opacity="0.25" stroke="${theme.badgeFrom}" stroke-width="1.5" />
-        <text x="16" y="28" fill="${theme.border}" font-size="22" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold">
+        <rect x="0" y="0" width="${Math.min(760, escapedTitleBadge.length * 28 + 36)}" height="46" rx="8" fill="${theme.badgeFrom}" fill-opacity="0.28" stroke="${theme.badgeFrom}" stroke-width="1.5" />
+        <text x="18" y="31" fill="${theme.border}" font-size="24" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold">
           【${escapedTitleBadge}】
         </text>
       </g>
     `;
-    yOffset += 56;
+    yOffset += 68;
   }
 
   mainLines.forEach((line, idx) => {
     const isHighlight = idx === mainLines.length - 1;
     const textColor = isHighlight ? theme.border : '#ffffff';
     titleSvgLines += `
-      <text x="0" y="${yOffset + 40}" fill="${textColor}" font-size="38" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold" letter-spacing="1">
+      <text x="0" y="${yOffset + 44}" fill="${textColor}" font-size="44" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold" letter-spacing="1">
         ${escapeXml(line)}
       </text>
     `;
-    yOffset += 54;
-  });
-
-  // Summary box Y
-  const summaryBoxY = Math.max(395, 150 + yOffset + 15);
-
-  // Tags SVG
-  let tagsSvg = '';
-  let tagX = 0;
-  tags.forEach(tag => {
-    const cleanTag = tag.replace(/^#/, '');
-    const tagWidth = cleanTag.length * 17 + 42;
-    tagsSvg += `
-      <g transform="translate(${tagX}, 0)">
-        <rect x="0" y="0" width="${tagWidth}" height="34" rx="17" fill="#ffffff" fill-opacity="0.1" stroke="#ffffff" stroke-opacity="0.2" />
-        <text x="${tagWidth / 2}" y="23" fill="#f8fafc" font-size="15" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold" text-anchor="middle">
-          ✓ ${escapeXml(cleanTag)}
-        </text>
-      </g>
-    `;
-    tagX += tagWidth + 12;
+    yOffset += 64;
   });
 
   const svg = `
   <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <!-- Gradient overlay: deep opaque dark tint on left (for text), transparent on right (showing article illustration) -->
       <linearGradient id="overlayGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#0a0307" stop-opacity="0.97" />
-        <stop offset="50%" stop-color="#140610" stop-opacity="0.94" />
-        <stop offset="72%" stop-color="#190714" stop-opacity="0.80" />
-        <stop offset="100%" stop-color="#190714" stop-opacity="0.38" />
+        <stop offset="0%" stop-color="#0a0307" stop-opacity="0.95" />
+        <stop offset="55%" stop-color="#140610" stop-opacity="0.90" />
+        <stop offset="80%" stop-color="#190714" stop-opacity="0.72" />
+        <stop offset="100%" stop-color="#190714" stop-opacity="0.35" />
       </linearGradient>
       <linearGradient id="catGrad" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stop-color="${theme.badgeFrom}" />
@@ -217,44 +190,17 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
     <rect x="0" y="0" width="${width}" height="6" fill="url(#catGrad)" />
     <rect x="0" y="${height - 6}" width="${width}" height="6" fill="url(#catGrad)" />
 
-    <!-- Header Section (Category + Brand) -->
-    <g transform="translate(60, 52)">
-      <!-- Category Badge -->
-      <rect x="0" y="0" width="${escapedCategory.length * 20 + 36}" height="36" rx="6" fill="url(#catGrad)" />
-      <text x="${(escapedCategory.length * 20 + 36) / 2}" y="24" fill="#ffffff" font-size="18" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold" text-anchor="middle">
-        ${escapedCategory}
-      </text>
-
-      <!-- Brand Title -->
-      <text x="${escapedCategory.length * 20 + 56}" y="25" fill="#fda4af" font-size="20" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold">
-        滝井ガールズ 公式求人コラム
+    <!-- Top Label: 滝井新地 -->
+    <g transform="translate(72, ${startY - 68})">
+      <rect x="0" y="0" width="148" height="44" rx="8" fill="url(#catGrad)" />
+      <text x="74" y="30" fill="#ffffff" font-size="24" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="2">
+        滝井新地
       </text>
     </g>
 
     <!-- Main Title Group -->
-    <g transform="translate(60, 125)">
+    <g transform="translate(72, ${startY})">
       ${titleSvgLines}
-    </g>
-
-    <!-- Sub Summary description box -->
-    <g transform="translate(60, ${summaryBoxY})">
-      <rect x="0" y="0" width="690" height="74" rx="10" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.16" stroke-width="1" />
-      <text x="20" y="32" fill="#f1f5f9" font-size="19" font-family="'IPAPGothic', 'IPAゴシック', sans-serif">
-        ${escapedSummary1}
-      </text>
-      <text x="20" y="60" fill="#cbd5e1" font-size="19" font-family="'IPAPGothic', 'IPAゴシック', sans-serif">
-        ${escapedSummary2}
-      </text>
-    </g>
-
-    <!-- Footer: Tags on left, Domain on right -->
-    <g transform="translate(60, 545)">
-      ${tagsSvg}
-
-      <!-- Right: Domain / Brand -->
-      <text x="${width - 120}" y="23" fill="#fda4af" font-size="19" font-family="'IPAPGothic', 'IPAゴシック', sans-serif" font-weight="bold" text-anchor="end">
-        osaka-takiishinchi.pages.dev
-      </text>
     </g>
   </svg>
   `;
@@ -272,13 +218,7 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
 
 async function main() {
   const rootDir = process.cwd();
-  const articlesPath = path.join(rootDir, 'data', 'blogArticles.json');
-  if (!fs.existsSync(articlesPath)) {
-    console.error('blogArticles.json not found!');
-    return;
-  }
-
-  const articles: BlogArticle[] = JSON.parse(fs.readFileSync(articlesPath, 'utf-8'));
+  const articles: BlogArticle[] = (BLOG_ARTICLES as BlogArticle[]) || [];
   console.log(`🎨 Starting generation of custom text-inscribed OGP card images for ${articles.length} articles...`);
 
   const publicImagesDir = path.join(rootDir, 'public', 'images');
@@ -289,6 +229,24 @@ async function main() {
   fs.mkdirSync(srcImagesDir, { recursive: true });
   if (fs.existsSync(path.join(rootDir, 'dist'))) {
     fs.mkdirSync(distImagesDir, { recursive: true });
+  }
+
+  // Also generate a clean card for /blog index page
+  const blogIndexCardFile = await generateOgCardForArticle(
+    {
+      id: 'blog-index',
+      slug: 'blog_index',
+      title: 'お仕事コラム・完全ガイド一覧',
+      category: 'beginner',
+      summary: '',
+      eyeCatch: '/images/col_ryotei_flow_1789107427433.jpg',
+    },
+    publicImagesDir
+  );
+  const blogIndexSrc = path.join(publicImagesDir, blogIndexCardFile);
+  fs.copyFileSync(blogIndexSrc, path.join(srcImagesDir, blogIndexCardFile));
+  if (fs.existsSync(distImagesDir)) {
+    fs.copyFileSync(blogIndexSrc, path.join(distImagesDir, blogIndexCardFile));
   }
 
   let count = 0;
@@ -306,7 +264,7 @@ async function main() {
     }
   }
 
-  console.log(`🎉 Finished generating all ${count} article OGP card images with tailored visuals and Japanese typography!`);
+  console.log(`🎉 Finished generating all ${count} article OGP card images with 滝井新地 + Title only!`);
 }
 
 main().catch(console.error);
