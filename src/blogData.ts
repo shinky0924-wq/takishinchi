@@ -73,7 +73,7 @@ export function getValidArticleEyeCatch(art: { id?: string | number; slug?: stri
   return '/images/japanese_hero_banner.jpg';
 }
 
-const BLOG_DATA_VERSION = '20261012_takishinchi_articles_v8_clean';
+const BLOG_DATA_VERSION = '20261012_takishinchi_articles_v9_clean';
 
 export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
   if (!Array.isArray(articles)) return BLOG_ARTICLES;
@@ -104,7 +104,8 @@ export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
         s.includes('通りから姿が見えない') ||
         s.includes('18歳') ||
         s.includes('高校生不可') ||
-        s.includes('10代')
+        s.includes('10代') ||
+        s.includes('全店一斉閉店')
       ) {
         return cleanDefault;
       }
@@ -113,6 +114,7 @@ export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
       .replace(/tobitashinchi-/g, 'takishinchi-')
       .replace(/15分5,000円/g, '30分8,000円')
       .replace(/10:00〜24:00/g, '15:00〜24:00')
+      .replace(/全店一斉閉店/g, '閉店')
       .replace(/満18歳以上（高校生不可）/g, '満20歳以上')
       .replace(/18歳（高校生不可）/g, '20歳以上')
       .replace(/18歳未満および高校生/g, '20歳未満の方')

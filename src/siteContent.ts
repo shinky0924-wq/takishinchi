@@ -72,7 +72,7 @@ export interface SiteContent {
   };
 }
 
-export const SITE_CONTENT_VERSION = '20261012_takishinchi_clean_v8';
+export const SITE_CONTENT_VERSION = '20261012_takishinchi_clean_v9';
 export const DEFAULT_SITE_CONTENT: SiteContent = siteContentJson as any;
 
 export function sanitizeTakiiSiteContent(raw: any): any {
@@ -96,7 +96,8 @@ export function sanitizeTakiiSiteContent(raw: any): any {
     rawStr.includes('通りから姿が見えない') ||
     rawStr.includes('18歳') ||
     rawStr.includes('高校生不可') ||
-    rawStr.includes('飛田ガールズ')
+    rawStr.includes('飛田ガールズ') ||
+    rawStr.includes('全店一斉閉店')
   ) {
     return DEFAULT_SITE_CONTENT;
   }

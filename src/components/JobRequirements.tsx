@@ -113,7 +113,7 @@ export default function JobRequirements() {
       content: (
         <div className="space-y-2 text-xs sm:text-sm text-on-surface-variant leading-relaxed">
           <p>
-            <strong>15:00〜24:00</strong>（24:00全店一斉閉店 ※朝・昼からの営業はありません）
+            <strong>15:00〜24:00</strong>（※朝・昼からの営業はありません）
           </p>
           <p className="text-xs sm:text-sm">
             ・週1日・1日3時間〜の短時間勤務からOK<br />
