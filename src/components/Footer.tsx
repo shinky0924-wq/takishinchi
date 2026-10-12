@@ -80,7 +80,7 @@ export default function Footer({ currentTab, onChangeTab, onScrollToSection, onO
               </div>
             </div>
             <p className="font-sans text-xs md:text-sm text-on-surface-variant leading-loose">
-              未経験歓迎・お店の玄関から顔が見えない安心環境（30分8,000円・全額日払い手渡し）<br />
+              滝井新地トップクラスのお店だから安心・安全・高収入！未経験大歓迎です<br />
               営業時間：15:00〜24:00（LINEでの事前相談・ご質問は24時間年中無休で受付中）<br />
               エリア：大阪府守口市滝井西町（京阪本線「千林駅」「滝井駅」徒歩約3分）
             </p>
