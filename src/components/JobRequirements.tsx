@@ -30,10 +30,10 @@ export default function JobRequirements() {
         <div className="space-y-3 text-xs sm:text-sm text-on-surface-variant leading-relaxed">
           <div className="bg-rose-50/70 border border-rose-200/70 rounded-xl p-3">
             <h4 className="font-bold text-secondary text-xs sm:text-sm mb-1">
-              20代〜40代まで幅広い年代の女性が活躍しています
+              当店は20代〜40代まで幅広い年代の女性が活躍しています
             </h4>
             <p className="text-xs text-on-surface-variant leading-relaxed">
-              滝井新地は古くからの地元客や常連客（店馴染み）が非常に多いのが特徴です。未経験の20代から大人の魅力を活かせる30代・40代まで、愛嬌や丁寧な接客が何より評価され、安定して稼げる環境が整っています。
+              経営が長いので古くからの地元客や常連客（店馴染み）が非常に多いのが特徴です。未経験の20代から大人の魅力を活かせる30代・40代まで、愛嬌や丁寧な接客が何より評価され、安定して稼げる環境が整っています。
             </p>
           </div>
 
