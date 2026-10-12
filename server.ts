@@ -189,31 +189,45 @@ async function startServer() {
       const username = process.env.GITHUB_USERNAME || "shinky0924-wq";
       const pat = customToken || process.env.GITHUB_PAT;
 
-      if (!repoUrl || !pat) {
+      const gitDir = path.join(projectRootDir, ".git");
+      const hasGit = fs.existsSync(gitDir);
+      const savedAuthUrlPath = path.join(gitDir, "github_auth_url");
+
+      let authUrl = "";
+      if (repoUrl && pat) {
+        const cleanUrl = repoUrl.replace("https://", "");
+        authUrl = `https://${username}:${pat}@${cleanUrl}`;
+        if (hasGit) {
+          try {
+            fs.writeFileSync(savedAuthUrlPath, authUrl, "utf-8");
+          } catch (e) {}
+        }
+      } else if (hasGit && fs.existsSync(savedAuthUrlPath)) {
+        try {
+          authUrl = fs.readFileSync(savedAuthUrlPath, "utf-8").trim();
+        } catch (e) {}
+      }
+
+      if (!authUrl && !hasGit) {
         console.log("[GitHub Sync] Skipped: Repo URL or Token not configured.");
         resolve({ success: false, message: "GITHUB_PAT is not configured." });
         return;
       }
 
-      // Format the authenticated URL
-      const cleanUrl = repoUrl.replace("https://", "");
-      const authUrl = `https://${username}:${pat}@${cleanUrl}`;
-
       console.log("[GitHub Sync] Starting automatic commit & push to GitHub...");
-
-      const gitDir = path.join(projectRootDir, ".git");
-      const hasGit = fs.existsSync(gitDir);
 
       let setupCmds = "";
       if (!hasGit) {
         setupCmds = `git init && git checkout -b main && git remote add origin "${authUrl}" && `;
-      } else {
+      } else if (authUrl) {
         setupCmds = `(git remote set-url origin "${authUrl}" || git remote add origin "${authUrl}") && git checkout -B main && `;
+      } else {
+        setupCmds = `git checkout -B main && `;
       }
 
       const execOptions = { cwd: projectRootDir };
       const pushCmd = `git push -f -u origin main`;
-      const gitCmds = `${setupCmds}git config user.name "${username}" && git config user.email "shinky0924@gmail.com" && git add -A && (git diff-index --quiet HEAD || git commit -m "Update Takii Shinchi site content and assets [auto-sync]") && ${pushCmd}`;
+      const gitCmds = `${setupCmds}git config user.name "${username}" && git config user.email "shinodayamaqzin002@gmail.com" && git add -A && (git diff-index --quiet HEAD || git commit -m "Update Takii Shinchi site content and assets [auto-sync]") && ${pushCmd}`;
 
       exec(gitCmds, execOptions, (error: any, stdout: string, stderr: string) => {
         if (error) {
@@ -228,7 +242,7 @@ async function startServer() {
     });
   };
 
-  // Run initial GitHub sync on startup if GITHUB_PAT is set
+  // Run initial GitHub sync on startup
   syncToGitHub();
 
   app.post("/api/sync-github", async (req, res) => {
