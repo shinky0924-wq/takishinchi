@@ -190,14 +190,14 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
                 お仕事コラム & ブログ
               </span>
               <h1 className="text-3xl md:text-4xl font-display font-bold tracking-tight text-[#2c1a1e]">
-                滝井新地で安心デビューするための<br />
+                滝井新地の当店で安心デビューするための<br />
                 <span className="text-secondary relative inline-block">
                   お仕事コラム＆完全ガイド
                   <span className="absolute left-0 bottom-1 w-full h-2 bg-pink-100 -z-10 rounded-full" />
                 </span>
               </h1>
               <p className="mt-4 text-base text-on-surface-variant leading-relaxed">
-                初めて滝井新地で働く女性が知っておきたい基礎知識から、30分8,000円・雑費天引きゼロの全額日払いシステム、お店の玄関から顔が見えない安心の身バレ対策、実際の1日の流れまで詳しく解説します。
+                初めて滝井新地の当店で働く女性が知っておきたい基礎知識から、30分8,000円・雑費天引きゼロの全額日払いシステム、お店の玄関から顔が見えない安心の身バレ対策、実際の1日の流れまで詳しく解説します。
               </p>
             </div>
 
@@ -585,7 +585,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
               <div className="absolute top-0 right-0 w-32 h-32 bg-secondary opacity-20 blur-3xl rounded-full" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-pink-500 opacity-25 blur-3xl rounded-full" />
               <h3 className="text-xl md:text-2xl font-bold tracking-tight mb-2">
-                滝井新地で最短本日スタート！1日体験入店随時受付中
+                滝井新地の当店で最短本日スタート！1日体験入店随時受付中
               </h3>
               <p className="text-xs md:text-sm text-pink-200/90 max-w-lg mx-auto leading-relaxed mb-6">
                 体験入店は「面接＋見学＋1日お仕事＋30分8,000円×本数を雑費ゼロで即日全額手渡し」がすべて1日で完了する安心コースです。万が一合わないと感じたらその日限りでも全然OK！まずはLINEでお気軽にご相談ください。

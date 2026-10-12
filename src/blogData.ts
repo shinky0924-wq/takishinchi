@@ -73,7 +73,7 @@ export function getValidArticleEyeCatch(art: { id?: string | number; slug?: stri
   return '/images/japanese_hero_banner.jpg';
 }
 
-const BLOG_DATA_VERSION = '20261012_takishinchi_articles_v10_clean';
+const BLOG_DATA_VERSION = '20261012_takishinchi_articles_v13_clean';
 
 export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
   if (!Array.isArray(articles)) return BLOG_ARTICLES;
@@ -84,28 +84,7 @@ export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
   return articles.map(art => {
     const cleanDefault = defaultById.get(String(art.id));
     if (cleanDefault) {
-      const s = JSON.stringify(art);
-      if (
-        art.title !== cleanDefault.title ||
-        s.includes('飛田') ||
-        s.includes('tobitashinchi-') ||
-        s.includes('天王寺') ||
-        s.includes('青春通り') ||
-        s.includes('160軒') ||
-        s.includes('15分5,000円') ||
-        s.includes('10:00〜24:00') ||
-        s.includes('12:00〜18:00') ||
-        s.includes('13:30') ||
-        s.includes('玄関で、おばちゃんと') ||
-        s.includes('玄関におばちゃんと') ||
-        s.includes('通りから姿が見えない') ||
-        s.includes('18歳') ||
-        s.includes('高校生不可') ||
-        s.includes('10代') ||
-        s.includes('全店一斉閉店')
-      ) {
-        return cleanDefault;
-      }
+      return cleanDefault;
     }
     const jsonStr = JSON.stringify(art)
       .replace(/tobitashinchi-/g, 'takishinchi-')
