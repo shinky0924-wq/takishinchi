@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --color-surface: #faf6f7;
+  --color-surface-container: #fffbfd;
+  --color-surface-container-low: #fdf7f9;
+  --color-surface-container-lowest: #ffffff;
+
+  --color-primary: #d2547b;
+  --color-secondary: #d2547b;
+  --color-secondary-container: #f9cbd8;
+
+  --color-on-surface: #2c1a1e;
+  --color-on-surface-variant: #5e474c;
+  --color-outline-variant: #f2dde3;
+
+  --radius-4xl: 2rem;
+}
+
+@layer utilities {
+  .text-3\.5xl {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+
+  .hero-pattern {
+    background-image: radial-gradient(rgba(210, 84, 123, 0.09) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+}

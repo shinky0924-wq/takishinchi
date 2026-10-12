@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "Consultation": {
+      "title": "Consultation",
+      "description": "A consultation or inquiry submitted from the website.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name or nickname of the inquirer",
+          "maxLength": 200
+        },
+        "age": {
+          "type": "string",
+          "description": "Age range or age of the inquirer",
+          "maxLength": 50
+        },
+        "contact": {
+          "type": "string",
+          "description": "Contact method or ID (LINE/Email/Tel)",
+          "maxLength": 200
+        },
+        "message": {
+          "type": "string",
+          "description": "Consultation message content",
+          "maxLength": 5000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp when submitted"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["unread", "read", "contacted"],
+          "description": "Processing status of the consultation"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["website"],
+          "description": "Submission source"
+        }
+      },
+      "required": ["name", "age", "contact", "message", "createdAt", "status", "source"]
+    },
+    "CmsDocument": {
+      "title": "CmsDocument",
+      "description": "CMS storage document for blog articles or site content.",
+      "type": "object",
+      "properties": {
+        "articles": {
+          "type": "array",
+          "description": "List of blog articles"
+        },
+        "content": {
+          "type": "object",
+          "description": "Site content configuration object"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/consultations/{consultationId}": {
+      "schema": "Consultation",
+      "description": "Stores user consultation inquiries submitted from the website."
+    },
+    "/cms/{docId}": {
+      "schema": "CmsDocument",
+      "description": "Stores CMS data such as blog articles and site content."
+    }
+  }
+}
