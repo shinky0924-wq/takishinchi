@@ -18,9 +18,10 @@ const normalizeUrl = (originalUrl?: string): string => {
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
     return trimmed;
   }
-  const filename = trimmed.split('/').pop()?.split('?')[0] || '';
+  const [pathPart, queryPart] = trimmed.split('?');
+  const filename = pathPart.split('/').pop() || '';
   if (!filename) return DEFAULT_FALLBACK_IMAGE;
-  return `/images/${filename}`;
+  return queryPart ? `/images/${filename}?${queryPart}` : `/images/${filename}`;
 };
 
 export const ArticleCardImage: FC<ArticleCardImageProps> = memo(({

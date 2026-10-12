@@ -79,7 +79,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
       if (ogDesc) ogDesc.setAttribute('content', currentArticle.summary);
 
       const origin = typeof window !== 'undefined' ? (window.location.hostname.includes('localhost') ? 'https://osaka-takiishinchi.pages.dev' : window.location.origin) : 'https://osaka-takiishinchi.pages.dev';
-      const fullImageUrl = `${origin}/images/card_${currentArticle.slug}.jpg?v=2`;
+      const fullImageUrl = `${origin}/images/card_${currentArticle.slug}.jpg?v=3`;
 
       const ogImage = document.querySelector('meta[property="og:image"]');
       if (ogImage) ogImage.setAttribute('content', fullImageUrl);
@@ -138,34 +138,13 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
     onInjectedScroll(`コラム「${articleTitle}」を読みました。求人について詳しく話を聞きたいです！`);
   };
 
-  // Helper for generating eye-catch gradient colors based on category
-  const getCategoryGradient = (category: string) => {
-    switch (category) {
-      case 'beginner': return 'from-pink-400 to-rose-500';
-      case 'salary': return 'from-amber-400 to-orange-500';
-      case 'security': return 'from-violet-400 to-purple-600';
-      case 'lifestyle': return 'from-teal-400 to-emerald-500';
-      case 'onboarding': return 'from-cyan-400 to-blue-500';
-      default: return 'from-pink-400 to-rose-500';
+  // Split leading 【...】 bracket from title for cute, readable display
+  const parseDisplayTitle = (rawTitle: string): { subBadge: string | null; mainTitle: string } => {
+    const match = rawTitle.trim().match(/^[【\[](.*?)[】\]]\s*(.*)$/);
+    if (match && match[2]) {
+      return { subBadge: match[1].trim(), mainTitle: match[2].trim() };
     }
-  };
-
-  const formatEyeCatchUrl = (url: string) => {
-    if (!url) return '/images/japanese_hero_banner.jpg';
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
-    let clean = url.trim();
-    if (clean.startsWith('/src/assets/images/')) {
-      clean = clean.replace('/src/assets/images/', '/images/');
-    } else if (clean.startsWith('src/assets/images/')) {
-      clean = '/' + clean.replace('src/assets/images/', 'images/');
-    } else if (clean.startsWith('/assets/images/')) {
-      clean = clean.replace('/assets/images/', '/images/');
-    } else if (clean.startsWith('assets/images/')) {
-      clean = '/' + clean.replace('assets/images/', 'images/');
-    } else if (!clean.startsWith('/')) {
-      clean = '/images/' + clean;
-    }
-    return clean;
+    return { subBadge: null, mainTitle: rawTitle };
   };
 
   return (
@@ -185,55 +164,55 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
           >
             {/* Header / Intro */}
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-secondary mb-3">
-                <BookOpen size={13} />
-                お仕事コラム & ブログ
-              </span>
-              <h1 className="text-3xl md:text-4xl font-display font-bold tracking-tight text-[#2c1a1e]">
+              <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-rose-100 to-pink-100 text-secondary border border-pink-200/70 shadow-2xs mb-4">
+                <Sparkles size={14} className="text-pink-500" />
+                <span>女の子のための安心お仕事コラム</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold tracking-tight text-[#3d1e28] leading-snug">
                 滝井新地の当店で安心デビューするための<br />
-                <span className="text-secondary relative inline-block">
+                <span className="text-secondary relative inline-block mt-1">
                   お仕事コラム＆完全ガイド
-                  <span className="absolute left-0 bottom-1 w-full h-2 bg-pink-100 -z-10 rounded-full" />
+                  <span className="absolute left-0 bottom-0.5 w-full h-3 bg-pink-200/60 -z-10 rounded-full" />
                 </span>
               </h1>
-              <p className="mt-4 text-base text-on-surface-variant leading-relaxed">
-                初めて滝井新地の当店で働く女性が知っておきたい基礎知識から、30分8,000円・雑費天引きゼロの全額日払いシステム、お店の玄関から顔が見えない安心の身バレ対策、実際の1日の流れまで詳しく解説します。
+              <p className="mt-4 text-sm sm:text-base text-[#6b4c55] leading-loose">
+                初めて滝井新地の当店で働く女性が知っておきたい基礎知識から、30分8,000円・雑費天引きゼロの全額日払いシステム、お店の玄関から顔が見えない安心の身バレ対策、実際の1日の流れまでわかりやすく解説します。
               </p>
             </div>
 
             {/* Controls (Search & Category Filters) */}
-            <div className="bg-surface-container rounded-3xl p-6 mb-10 shadow-sm border border-outline-variant">
+            <div className="bg-gradient-to-br from-rose-50/90 via-white to-pink-50/80 rounded-4xl p-6 md:p-7 mb-10 shadow-xs border-2 border-pink-100">
               <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                 {/* Search Field */}
-                <div className="relative w-full md:w-80">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-on-surface-variant">
+                <div className="relative w-full md:w-88">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-pink-400">
                     <Search size={18} />
                   </span>
                   <input
                     type="text"
-                    placeholder="キーワード、タグで検索..."
+                    placeholder="気になるキーワードで検索（例：日払い、身バレ）"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full pl-10 pr-4 py-2.5 bg-white border border-outline-variant rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm text-on-surface transition-all placeholder:text-[#5e474c]/50"
+                    className="block w-full pl-10 pr-4 py-3 bg-white border-2 border-pink-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-secondary text-sm text-[#3d1e28] transition-all placeholder:text-[#8c6b75]/60"
                   />
                 </div>
 
                 {/* Info summary */}
-                <div className="text-xs font-sans text-on-surface-variant bg-white px-3 py-1.5 rounded-full border border-outline-variant">
-                  記事数: <span className="font-bold text-secondary font-mono">{filteredArticles.length}</span> / <span className="font-mono">{articles.length}</span>
+                <div className="text-xs font-sans text-[#6b4c55] bg-white px-4 py-2 rounded-full border border-pink-100 shadow-2xs">
+                  全 <span className="font-bold text-secondary font-mono text-sm">{filteredArticles.length}</span> 件のコラム
                 </div>
               </div>
 
-              {/* Category Filter Chips */}
-              <div className="flex flex-wrap gap-2 mt-5">
+              {/* Category Filter Buttons */}
+              <div className="flex flex-wrap gap-2.5 mt-5">
                 {BLOG_CATEGORIES.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-medium transition-all cursor-pointer ${
+                    className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-bold transition-all cursor-pointer ${
                       selectedCategory === category.id
-                        ? 'bg-secondary text-white shadow-sm shadow-secondary/25 scale-102'
-                        : 'bg-white hover:bg-rose-50 text-on-surface border border-outline-variant'
+                        ? 'bg-gradient-to-r from-secondary to-pink-500 text-white shadow-sm shadow-pink-300/50 scale-102'
+                        : 'bg-white hover:bg-rose-50 text-[#5e3a44] border border-pink-100'
                     }`}
                   >
                     {category.label}
@@ -245,78 +224,88 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
             {/* Articles Grid */}
             {filteredArticles.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {paginatedArticles.map((article, idx) => (
-                    <motion.article
-                      key={article.id}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25, delay: Math.min(idx * 0.03, 0.3) }}
-                      onClick={() => handleSelectArticle(article.slug)}
-                      className="group flex flex-col bg-white rounded-3xl overflow-hidden border border-outline-variant shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
-                    >
-                      {/* Eyecatch Image */}
-                      <div className="relative h-48 bg-rose-50/50 flex items-center justify-center overflow-hidden">
-                        <ArticleCardImage
-                          src={getValidArticleEyeCatch(article)}
-                          alt={article.title}
-                          category={article.category}
-                          categoryLabel={article.categoryLabel}
-                          className="w-full h-full"
-                        />
-                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-semibold text-secondary shadow-xs z-10">
-                          {article.categoryLabel}
-                        </div>
-                      </div>
-
-                      {/* Meta & Title */}
-                      <div className="flex-grow p-6 flex flex-col">
-                        <div className="flex items-center gap-4 text-xs text-on-surface-variant font-sans mb-3">
-                          <span className="flex items-center gap-1">
-                            <Calendar size={13} />
-                            <span className="font-mono">{(article.publishedAt || '').replace(/-/g, '.')}</span>
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock size={13} />
-                            読了<span className="font-mono">{article.readTime}</span>
-                          </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 md:gap-8">
+                  {paginatedArticles.map((article, idx) => {
+                    const { subBadge, mainTitle } = parseDisplayTitle(article.title);
+                    return (
+                      <motion.article
+                        key={article.id}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.25, delay: Math.min(idx * 0.03, 0.3) }}
+                        onClick={() => handleSelectArticle(article.slug)}
+                        className="group flex flex-col bg-white rounded-3xl overflow-hidden border-2 border-pink-100/80 hover:border-pink-300 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+                      >
+                        {/* Eyecatch Image */}
+                        <div className="relative h-52 bg-rose-50/60 flex items-center justify-center overflow-hidden">
+                          <ArticleCardImage
+                            src={`/images/card_${article.slug}.jpg?v=3`}
+                            alt={article.title}
+                            category={article.category}
+                            categoryLabel={article.categoryLabel}
+                            className="w-full h-full"
+                          />
                         </div>
 
-                        <h3 className="text-lg font-bold text-[#2c1a1e] leading-snug group-hover:text-secondary transition-colors line-clamp-2">
-                          {article.title}
-                        </h3>
-
-                        <p className="mt-3 text-sm text-on-surface-variant line-clamp-3 leading-relaxed">
-                          {article.summary}
-                        </p>
-
-                        {/* Tags */}
-                        <div className="mt-4 flex flex-wrap gap-1.5">
-                          {article.tags?.map((tag) => (
-                            <span key={tag} className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-medium bg-rose-50 text-secondary border border-rose-100">
-                              #{tag}
+                        {/* Meta & Title */}
+                        <div className="flex-grow p-6 flex flex-col bg-gradient-to-b from-white to-rose-50/20">
+                          <div className="flex items-center justify-between gap-2 text-xs text-[#7a5862] font-sans mb-3">
+                            <span className="text-secondary font-bold">
+                              ✿ {article.categoryLabel}
                             </span>
-                          )) || null}
-                        </div>
-
-                        {/* Author */}
-                        <div className="mt-6 pt-4 border-t border-rose-50 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl w-7 h-7 bg-rose-50 rounded-full flex items-center justify-center border border-rose-100">
-                              {article.author?.avatar || '👩‍💼'}
+                            <span className="flex items-center gap-2 text-[11px]">
+                              <span>{(article.publishedAt || '').replace(/-/g, '.')}</span>
+                              <span aria-hidden="true">·</span>
+                              <span>読了 {article.readTime}</span>
                             </span>
-                            <div>
-                              <p className="text-xs font-semibold text-on-surface leading-none">{article.author?.name || 'スタッフ'}</p>
-                              <p className="text-[10px] text-on-surface-variant mt-0.5 leading-none">{article.author?.role || 'サポートスタッフ'}</p>
-                            </div>
                           </div>
-                          <span className="text-secondary group-hover:translate-x-1 transition-transform">
-                            <ChevronRight size={16} />
-                          </span>
+
+                          {subBadge && (
+                            <div className="text-xs font-bold text-pink-600 mb-1">
+                              ♥ {subBadge}
+                            </div>
+                          )}
+
+                          <h3 className="text-base sm:text-lg font-bold text-[#3d1e28] leading-relaxed group-hover:text-secondary transition-colors line-clamp-2">
+                            {mainTitle}
+                          </h3>
+
+                          <p className="mt-3 text-xs sm:text-sm text-[#6b4c55] line-clamp-3 leading-relaxed">
+                            {article.summary}
+                          </p>
+
+                          {/* Tags as clean inline text */}
+                          {article.tags && article.tags.length > 0 && (
+                            <div className="mt-4 text-[11px] text-pink-600/80 leading-relaxed">
+                              {article.tags.map((tag, tIdx) => (
+                                <span key={tag}>
+                                  #{tag}
+                                  {tIdx < article.tags.length - 1 ? ' · ' : ''}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Author */}
+                          <div className="mt-6 pt-4 border-t border-pink-100/80 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-lg w-8 h-8 bg-rose-50 rounded-full flex items-center justify-center border border-pink-100">
+                                {article.author?.avatar || '👩‍💼'}
+                              </span>
+                              <div>
+                                <p className="text-xs font-bold text-[#3d1e28] leading-none">{article.author?.name || '女性サポートスタッフ'}</p>
+                                <p className="text-[10px] text-[#7a5862] mt-1 leading-none">{article.author?.role || '採用・相談窓口担当'}</p>
+                              </div>
+                            </div>
+                            <span className="inline-flex items-center gap-0.5 text-xs font-bold text-secondary group-hover:translate-x-1 transition-transform">
+                              <span>読む</span>
+                              <ChevronRight size={15} />
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </motion.article>
-                  ))}
+                      </motion.article>
+                    );
+                  })}
                 </div>
 
                 {/* Pagination Controls */}
@@ -326,14 +315,13 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
                       type="button"
                       onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium border border-outline-variant bg-white text-on-surface hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer"
+                      className="px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-pink-200 bg-white text-[#3d1e28] hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <ChevronLeft size={16} />
                       <span>前へ</span>
                     </button>
 
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                      // Show first, last, current, and surrounding pages
                       if (
                         page === 1 ||
                         page === totalPages ||
@@ -344,10 +332,10 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
                             key={page}
                             type="button"
                             onClick={() => handlePageChange(page)}
-                            className={`min-w-10 h-10 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center ${
+                            className={`min-w-10 h-10 px-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center ${
                               currentPage === page
-                                ? 'bg-secondary text-white shadow-sm shadow-secondary/30 scale-105'
-                                : 'bg-white border border-outline-variant text-on-surface hover:bg-rose-50'
+                                ? 'bg-gradient-to-r from-secondary to-pink-500 text-white shadow-sm shadow-pink-300/50 scale-105'
+                                : 'bg-white border border-pink-100 text-[#3d1e28] hover:bg-rose-50'
                             }`}
                           >
                             {page}
@@ -358,7 +346,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
                         page === currentPage + 2
                       ) {
                         return (
-                          <span key={page} className="px-1 text-on-surface-variant font-bold">
+                          <span key={page} className="px-1 text-pink-400 font-bold">
                             ...
                           </span>
                         );
@@ -370,7 +358,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
                       type="button"
                       onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium border border-outline-variant bg-white text-on-surface hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer"
+                      className="px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold border border-pink-200 bg-white text-[#3d1e28] hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <span>次へ</span>
                       <ChevronRight size={16} />
@@ -380,15 +368,15 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
               </>
             ) : (
               /* Empty state */
-              <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-outline-variant">
-                <Search size={40} className="mx-auto text-[#5e474c]/30 mb-3" />
-                <h3 className="text-lg font-semibold text-on-surface">該当するコラムが見つかりませんでした</h3>
-                <p className="text-sm text-on-surface-variant mt-1">別のキーワードやカテゴリーでお試しください。</p>
+              <div className="text-center py-16 bg-white rounded-3xl border-2 border-dashed border-pink-200">
+                <Search size={40} className="mx-auto text-pink-300 mb-3" />
+                <h3 className="text-lg font-bold text-[#3d1e28]">該当するコラムが見つかりませんでした</h3>
+                <p className="text-sm text-[#6b4c55] mt-1">別のキーワードやカテゴリーでお試しください。</p>
                 <button
                   onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }}
-                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-secondary text-white rounded-2xl text-sm font-semibold cursor-pointer shadow-xs hover:bg-opacity-90"
+                  className="mt-4 inline-flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-secondary to-pink-500 text-white rounded-2xl text-sm font-bold cursor-pointer shadow-xs hover:opacity-95"
                 >
-                  フィルターをクリア
+                  すべて表示に戻す
                 </button>
               </div>
             )}
@@ -405,7 +393,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
             className="flex flex-col items-center justify-center py-24 text-center"
           >
             <div className="w-12 h-12 border-4 border-rose-100 border-t-secondary rounded-full animate-spin mb-4" />
-            <p className="text-on-surface-variant text-sm font-sans">コラムを読み込んでいます...</p>
+            <p className="text-[#6b4c55] text-sm font-sans">コラムを読み込んでいます...</p>
           </motion.div>
         ) : !currentArticle ? (
           /* ==========================================
@@ -417,18 +405,18 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.3 }}
-            className="max-w-md mx-auto text-center py-16 px-6 bg-white border border-rose-100 rounded-3xl shadow-xl my-12"
+            className="max-w-md mx-auto text-center py-16 px-6 bg-white border-2 border-pink-100 rounded-3xl shadow-md my-12"
           >
             <div className="w-16 h-16 bg-rose-50 text-secondary rounded-full flex items-center justify-center mx-auto mb-6">
               <Search size={32} />
             </div>
-            <h2 className="text-xl md:text-2xl font-bold text-[#2c1a1e] mb-3">コラムが見つかりませんでした</h2>
-            <p className="text-on-surface-variant text-sm mb-8 leading-relaxed">
+            <h2 className="text-xl md:text-2xl font-bold text-[#3d1e28] mb-3">コラムが見つかりませんでした</h2>
+            <p className="text-[#6b4c55] text-sm mb-8 leading-relaxed">
               お探しの記事は削除されたか、URLが変更された可能性があります。
             </p>
             <button
               onClick={handleBackToList}
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-secondary hover:bg-secondary/90 text-white font-bold rounded-2xl shadow-md transition-all cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-secondary to-pink-500 text-white font-bold rounded-2xl shadow-md transition-all cursor-pointer"
             >
               <ArrowLeft size={16} />
               コラム一覧に戻る
@@ -449,154 +437,191 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
             {/* Back Navigation */}
             <button
               onClick={handleBackToList}
-              className="group mb-8 inline-flex items-center gap-2 text-sm font-medium text-on-surface hover:text-secondary transition-colors cursor-pointer py-2"
+              className="group mb-6 inline-flex items-center gap-2 text-sm font-bold text-[#5e3a44] hover:text-secondary transition-colors cursor-pointer py-2"
             >
-              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-              コラム一覧へ戻る
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform text-secondary" />
+              <span>お仕事コラム一覧へ戻る</span>
             </button>
 
-            {/* Eyecatch hero */}
-            <div className="h-56 md:h-72 rounded-4xl bg-rose-50/50 flex flex-col items-center justify-center relative overflow-hidden shadow-xs border border-outline-variant">
+            {/* Cute OGP / Eyecatch Card Preview */}
+            <div className="rounded-4xl bg-rose-50/50 overflow-hidden shadow-sm border-2 border-pink-100">
               <ArticleCardImage
-                src={getValidArticleEyeCatch(currentArticle!)}
+                src={`/images/card_${currentArticle!.slug}.jpg?v=3`}
                 alt={currentArticle!.title}
                 category={currentArticle!.category}
                 categoryLabel={currentArticle!.categoryLabel}
-                className="w-full h-full"
+                className="w-full aspect-[1200/630]"
                 isDetailHero={true}
               />
-              <div className="absolute top-6 left-6 bg-white/95 backdrop-blur-xs px-3.5 py-1.5 rounded-full text-xs font-bold text-secondary shadow-xs z-10">
-                {currentArticle!.categoryLabel}
-              </div>
             </div>
 
-            {/* Article Header info */}
-            <div className="mt-8 border-b border-rose-100 pb-6">
-              <div className="flex items-center gap-4 text-xs font-sans text-on-surface-variant mb-4">
-                <span className="flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-lg">
-                  <Calendar size={13} />
-                  <span className="font-mono">{(currentArticle!.publishedAt || '').replace(/-/g, '.')}</span>
-                </span>
-                <span className="flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-lg">
-                  <Clock size={13} />
-                  読了<span className="font-mono">{currentArticle!.readTime}</span>
-                </span>
-              </div>
-
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-display font-bold leading-snug text-[#2c1a1e] tracking-tight">
-                {currentArticle!.title}
-              </h1>
-
-              {/* Author Card inside detail */}
-              <div className="mt-6 flex items-center justify-between p-4 bg-surface-container rounded-3xl border border-outline-variant">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl w-10 h-10 bg-white rounded-full flex items-center justify-center border border-outline-variant shadow-2xs">
-                    {currentArticle!.author?.avatar || '👩‍💼'}
+            {/* Main Article Card Container */}
+            <div className="mt-8 bg-white rounded-4xl p-6 sm:p-8 md:p-11 border-2 border-pink-100/90 shadow-xs">
+              {/* Article Header info */}
+              <div className="border-b-2 border-dashed border-pink-100 pb-6">
+                <div className="flex flex-wrap items-center gap-3 text-xs font-sans text-[#7a5862] mb-3">
+                  <span className="font-bold text-secondary">
+                    ✿ {currentArticle!.categoryLabel}
                   </span>
-                  <div>
-                    <div className="text-xs text-on-surface-variant">この記事の監修スタッフ</div>
-                    <div className="text-sm font-bold text-on-surface">{currentArticle!.author?.name || 'スタッフ'}</div>
+                  <span aria-hidden="true">·</span>
+                  <span className="flex items-center gap-1">
+                    <Calendar size={13} className="text-pink-400" />
+                    <span className="font-mono">{(currentArticle!.publishedAt || '').replace(/-/g, '.')}</span>
+                  </span>
+                  <span aria-hidden="true">·</span>
+                  <span className="flex items-center gap-1">
+                    <Clock size={13} className="text-pink-400" />
+                    読了 <span className="font-mono">{currentArticle!.readTime}</span>
+                  </span>
+                </div>
+
+                {(() => {
+                  const { subBadge, mainTitle } = parseDisplayTitle(currentArticle!.title);
+                  return (
+                    <>
+                      {subBadge && (
+                        <div className="text-sm md:text-base font-bold text-pink-600 mb-1.5">
+                          ♥ {subBadge} ♥
+                        </div>
+                      )}
+                      <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold leading-relaxed text-[#3d1e28] tracking-tight">
+                        {mainTitle}
+                      </h1>
+                    </>
+                  );
+                })()}
+
+                {/* Summary Box (この記事のポイント) */}
+                {currentArticle!.summary && (
+                  <div className="mt-5 p-4 sm:p-5 bg-gradient-to-br from-rose-50/90 to-pink-50/60 rounded-2xl border border-pink-200/80">
+                    <div className="text-xs font-bold text-secondary mb-1.5 flex items-center gap-1.5">
+                      <Sparkles size={14} className="text-pink-500" />
+                      <span>この記事のポイント</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-[#5e3a44] leading-loose">
+                      {currentArticle!.summary}
+                    </p>
+                  </div>
+                )}
+
+                {/* Author Card inside detail */}
+                <div className="mt-5 flex items-center justify-between p-3.5 bg-rose-50/40 rounded-2xl border border-pink-100">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl w-10 h-10 bg-white rounded-full flex items-center justify-center border border-pink-100 shadow-2xs">
+                      {currentArticle!.author?.avatar || '👩‍💼'}
+                    </span>
+                    <div>
+                      <div className="text-[11px] text-[#7a5862]">この記事の監修・相談担当</div>
+                      <div className="text-xs sm:text-sm font-bold text-[#3d1e28]">{currentArticle!.author?.name || '女性サポートスタッフ'}</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-secondary font-medium">
+                    {currentArticle!.author?.role || '採用・相談窓口担当'}
                   </div>
                 </div>
-                <div className="text-xs text-on-surface-variant bg-white/80 border border-outline-variant px-3 py-1.5 rounded-full">
-                  {currentArticle!.author?.role || 'サポートスタッフ'}
-                </div>
               </div>
-            </div>
 
-            {/* Article Content Render */}
-            <div className="mt-8 space-y-6 text-[#2c1a1e] text-base md:text-lg leading-relaxed font-sans">
-              {(currentArticle!.content || []).map((block, idx) => {
-                switch (block.type) {
-                  case 'p':
-                    return (
-                      <p key={idx} className="whitespace-pre-line text-on-surface leading-relaxed py-1">
-                        {block.text}
-                      </p>
-                    );
-                  case 'h2':
-                    return (
-                      <h2 key={idx} className="text-xl md:text-2xl font-bold text-[#2c1a1e] mt-10 mb-4 pt-4 pb-2 border-b-2 border-secondary/20 flex items-center gap-2">
-                        <span className="inline-block w-1.5 h-6 bg-secondary rounded-full" />
-                        {block.text}
-                      </h2>
-                    );
-                  case 'h3':
-                    return (
-                      <h3 key={idx} className="text-lg md:text-xl font-bold text-[#2c1a1e] mt-8 mb-3 bg-rose-50 px-4 py-2 rounded-xl border-l-4 border-secondary">
-                        {block.text}
-                      </h3>
-                    );
-                  case 'list':
-                    return (
-                      <ul key={idx} className="space-y-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant my-6">
-                        {block.items?.map((item, itemIdx) => (
-                          <li key={itemIdx} className="flex items-start gap-2.5 text-sm md:text-base">
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-pink-100 text-secondary text-xs font-bold mt-0.5 shrink-0">
-                              {itemIdx + 1}
+              {/* Article Content Render */}
+              <div className="mt-8 space-y-6 text-[#3d1e28] text-base md:text-[17px] leading-loose font-sans">
+                {(currentArticle!.content || []).map((block, idx) => {
+                  switch (block.type) {
+                    case 'p':
+                      return (
+                        <p key={idx} className="whitespace-pre-line text-[#4a2832] leading-loose py-0.5">
+                          {block.text}
+                        </p>
+                      );
+                    case 'h2':
+                      return (
+                        <h2 key={idx} className="text-lg sm:text-xl md:text-2xl font-bold text-[#3d1e28] mt-10 mb-4 pt-4 pb-2.5 border-b-2 border-pink-200 flex items-start gap-2.5">
+                          <span className="text-pink-500 shrink-0 mt-0.5">✿</span>
+                          <span>{block.text}</span>
+                        </h2>
+                      );
+                    case 'h3':
+                      return (
+                        <h3 key={idx} className="text-base sm:text-lg md:text-xl font-bold text-[#3d1e28] mt-7 mb-3 bg-gradient-to-r from-rose-50 to-pink-50/50 px-4 py-2.5 rounded-2xl border-l-4 border-pink-400">
+                          {block.text}
+                        </h3>
+                      );
+                    case 'list':
+                      return (
+                        <ul key={idx} className="space-y-3.5 bg-rose-50/50 p-5 sm:p-6 rounded-3xl border border-pink-100 my-6">
+                          {block.items?.map((item, itemIdx) => (
+                            <li key={itemIdx} className="flex items-start gap-3 text-sm md:text-base">
+                              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-secondary to-pink-400 text-white text-xs font-bold mt-0.5 shrink-0 shadow-2xs">
+                                {itemIdx + 1}
+                              </span>
+                              <span className="text-[#4a2832] leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      );
+                    case 'qna':
+                      return (
+                        <div key={idx} className="bg-white rounded-3xl border-2 border-pink-200/80 overflow-hidden my-7 shadow-2xs">
+                          <div className="bg-gradient-to-r from-rose-50 via-pink-50 to-rose-50 text-[#3d1e28] px-5 py-3.5 font-bold flex items-start gap-3 border-b border-pink-100">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold shrink-0 mt-0.5">
+                              Q
                             </span>
-                            <span className="text-on-surface-variant leading-relaxed">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    );
-                  case 'qna':
-                    return (
-                      <div key={idx} className="bg-white rounded-3xl border-2 border-secondary/20 overflow-hidden my-8 shadow-xs">
-                        <div className="bg-gradient-to-r from-secondary to-pink-500 text-white px-5 py-3 font-bold flex items-center gap-2">
-                          <ShieldCheck size={18} />
-                          {block.question}
+                            <span className="leading-snug">{block.question}</span>
+                          </div>
+                          <div className="p-5 text-sm md:text-base text-[#4a2832] leading-loose bg-white flex items-start gap-3">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-pink-100 text-secondary text-xs font-bold shrink-0 mt-1">
+                              A
+                            </span>
+                            <div>{block.answer || block.text}</div>
+                          </div>
                         </div>
-                        <div className="p-5 text-sm md:text-base text-on-surface-variant leading-relaxed bg-surface-container-low">
-                          {block.answer || block.text}
-                        </div>
-                      </div>
-                    );
-                  case 'cta':
-                    return null;
-                  default:
-                    return null;
-                }
-              })}
-            </div>
-
-            {/* Article Footer & Navigator */}
-            <div className="mt-12 pt-8 border-t border-rose-100 flex flex-col md:flex-row justify-between gap-6 items-center">
-              <div className="flex flex-wrap gap-2">
-                {currentArticle!.tags.map((tag) => (
-                  <span key={tag} className="inline-flex items-center gap-1 px-3 py-1 bg-surface-container rounded-full text-xs text-secondary font-medium border border-outline-variant">
-                    <Tag size={12} />
-                    {tag}
-                  </span>
-                ))}
+                      );
+                    case 'cta':
+                      return null;
+                    default:
+                      return null;
+                  }
+                })}
               </div>
 
-              <button
-                onClick={handleBackToList}
-                className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-outline-variant rounded-2xl text-sm font-bold text-on-surface hover:bg-rose-50 transition-all cursor-pointer"
-              >
-                <ArrowLeft size={15} />
-                コラム一覧に戻る
-              </button>
+              {/* Article Footer & Navigator */}
+              <div className="mt-10 pt-6 border-t-2 border-dashed border-pink-100 flex flex-col md:flex-row justify-between gap-5 items-center">
+                <div className="text-xs text-pink-600/90 leading-relaxed">
+                  {currentArticle!.tags.map((tag, idx) => (
+                    <span key={tag}>
+                      #{tag}
+                      {idx < currentArticle!.tags.length - 1 ? ' · ' : ''}
+                    </span>
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleBackToList}
+                  className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-rose-50 hover:bg-rose-100 border border-pink-200 rounded-2xl text-sm font-bold text-[#3d1e28] transition-all cursor-pointer"
+                >
+                  <ArrowLeft size={15} className="text-secondary" />
+                  コラム一覧に戻る
+                </button>
+              </div>
             </div>
 
-            {/* Banner block */}
-            <div className="mt-16 bg-[#2c1a1e] text-white rounded-4xl p-8 text-center relative overflow-hidden shadow-lg">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary opacity-20 blur-3xl rounded-full" />
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-pink-500 opacity-25 blur-3xl rounded-full" />
-              <h3 className="text-xl md:text-2xl font-bold tracking-tight mb-2">
+            {/* Cute Feminine CTA Banner block */}
+            <div className="mt-10 bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50/60 text-[#3d1e28] rounded-4xl p-7 sm:p-9 text-center relative overflow-hidden shadow-sm border-2 border-pink-200">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-secondary mb-2">
+                <HeartHandshake size={16} className="text-pink-500" />
+                <span>女性スタッフが優しくサポートします</span>
+              </div>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-[#3d1e28] mb-3">
                 滝井新地の当店で最短本日スタート！1日体験入店随時受付中
               </h3>
-              <p className="text-xs md:text-sm text-pink-200/90 max-w-lg mx-auto leading-relaxed mb-6">
-                体験入店は「面接＋見学＋1日お仕事＋30分8,000円×本数を雑費ゼロで即日全額手渡し」がすべて1日で完了する安心コースです。万が一合わないと感じたらその日限りでも全然OK！まずはLINEでお気軽にご相談ください。
+              <p className="text-xs sm:text-sm text-[#5e3a44] max-w-xl mx-auto leading-loose mb-6">
+                体験入店は「面接＋見学＋1日お仕事＋30分8,000円×本数を雑費ゼロで即日全額手渡し」がすべて1日で完了する安心コースです。質問だけ・見学だけのご相談も大歓迎！まずはLINEでお気軽にお問い合わせください。
               </p>
               <div className="flex justify-center items-center">
                 <button
                   onClick={() => handleCtaInArticle(currentArticle!.title)}
-                  className="w-full sm:w-auto max-w-md bg-[#06c755] hover:bg-[#05b04b] text-white px-12 py-4 rounded-2xl font-bold text-base shadow-lg shadow-[#06c755]/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto max-w-md bg-[#06c755] hover:bg-[#05b04b] text-white px-10 py-4 rounded-2xl font-bold text-base shadow-md shadow-[#06c755]/25 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <MessageCircle size={18} />
-                  LINEでお問い合わせ
+                  <MessageCircle size={19} />
+                  LINEで気軽に質問・相談する
                 </button>
               </div>
             </div>
