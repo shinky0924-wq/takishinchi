@@ -155,7 +155,7 @@ function selectBackgroundForArticle(article: BlogArticle): string {
     for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
   }
 
-  // 2. Fallback: select distinct photo based on article numerical ID / hash
+  // 2. Fallback: select distinct photo based on article numerical ID
   const numId = parseInt(article.id, 10) || 0;
   const picked = CURATED_BACKGROUND_PHOTOS[numId % CURATED_BACKGROUND_PHOTOS.length];
   if (fs.existsSync(path.join(imagesDir, picked))) {
@@ -165,20 +165,22 @@ function selectBackgroundForArticle(article: BlogArticle): string {
   return 'col_street_lanterns_1789107524691.jpg';
 }
 
-function splitTitleForEditorial(fullTitle: string): { badge: string; mainLines: string[] } {
-  let badge = '';
+function splitTitleForEditorial(fullTitle: string): string[] {
   let rest = fullTitle.trim();
+  let badge = '';
 
-  // Extract leading 【...】 bracket if present
   const bracketMatch = rest.match(/^[【\[](.*?)[】\]]\s*/);
   if (bracketMatch) {
     badge = bracketMatch[1].trim();
     rest = rest.replace(/^[【\[].*?[】\]]\s*/, '').trim();
   }
 
-  // Break title into 1~3 balanced lines (12~14 chars max per line for large bold presentation)
-  const maxLineChars = 14;
   const lines: string[] = [];
+  if (badge) {
+    lines.push(badge);
+  }
+
+  const maxLineChars = 14;
   const segments = rest.split(/(?<=[、・！？!?\s])/);
   let currentLine = '';
 
@@ -208,10 +210,7 @@ function splitTitleForEditorial(fullTitle: string): { badge: string; mainLines: 
     lines.push(currentLine.trim());
   }
 
-  return {
-    badge,
-    mainLines: lines.slice(0, 3),
-  };
+  return lines.slice(0, 3);
 }
 
 export async function generateOgCardForArticle(article: BlogArticle, outputDir: string): Promise<string> {
@@ -237,18 +236,18 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
       .toBuffer();
   }
 
-  const { badge, mainLines } = splitTitleForEditorial(article.title);
-  const escapedBadge = escapeXml(badge);
+  // ONLY 滝井新地 + Title
+  const mainLines = splitTitleForEditorial(article.title);
 
   // Compute layout & SVG elements
   const fontSize = mainLines.length >= 3 ? 48 : 52;
-  const lineStep = mainLines.length >= 3 ? 72 : 78;
-  let currentY = 162;
+  const lineStep = mainLines.length >= 3 ? 74 : 80;
+  let currentY = 168;
   let headlineElements = '';
 
   mainLines.forEach((line, idx) => {
     const escapedLine = escapeXml(line);
-    const textWidthApprox = Math.min(720, line.length * (fontSize * 1.02));
+    const textWidthApprox = Math.min(740, line.length * (fontSize * 1.02));
 
     if (idx === 0) {
       // First line gets the warm coral-peach highlight box (like the reference sample!)
@@ -284,11 +283,6 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
         <stop offset="78%" stop-color="#140812" stop-opacity="0.20" />
         <stop offset="100%" stop-color="#140812" stop-opacity="0.0" />
       </linearGradient>
-      <!-- Bottom soft vignette for X link preview safety -->
-      <linearGradient id="bottomVignette" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="70%" stop-color="#0a0408" stop-opacity="0.0" />
-        <stop offset="100%" stop-color="#0a0408" stop-opacity="0.45" />
-      </linearGradient>
       <!-- Vibrant coral-rose gradient for big prominent 滝井新地 branding badge -->
       <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stop-color="#ff3366" />
@@ -306,36 +300,17 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
 
     <!-- Photo overlays -->
     <rect width="${width}" height="${height}" fill="url(#leftVignette)" />
-    <rect width="${width}" height="${height}" fill="url(#bottomVignette)" />
 
-    <!-- Top Left: 滝井新地 (VERY BIG & PROMINENT BRANDING) -->
-    <g transform="translate(64, 46)">
-      <rect x="0" y="0" width="280" height="62" rx="31" fill="url(#brandGrad)" stroke="#ffffff" stroke-width="2.5" />
-      <text x="140" y="44" fill="#ffffff" font-size="38" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="3">
+    <!-- Top Left: 滝井新地 (BIG & PROMINENT BRANDING) -->
+    <g transform="translate(64, 48)">
+      <rect x="0" y="0" width="290" height="68" rx="34" fill="url(#brandGrad)" stroke="#ffffff" stroke-width="3" />
+      <text x="145" y="48" fill="#ffffff" font-size="40" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="4">
         🌸 滝井新地
       </text>
     </g>
 
-    ${escapedBadge ? `
-    <!-- Category / topic sub-badge -->
-    <g transform="translate(360, 52)">
-      <rect x="0" y="0" width="${Math.min(360, Math.max(180, escapedBadge.length * 24 + 40))}" height="50" rx="25" fill="#ffffff" fill-opacity="0.22" stroke="#ff8da1" stroke-width="1.8" />
-      <text x="${Math.min(360, Math.max(180, escapedBadge.length * 24 + 40)) / 2}" y="34" fill="#ffccd8" font-size="22" font-family="'Zen Maru Gothic Bold', 'Zen Maru Gothic', sans-serif" font-weight="bold" text-anchor="middle">
-        ♥ ${escapedBadge}
-      </text>
-    </g>
-    ` : ''}
-
-    <!-- Dynamic Main Title -->
+    <!-- ONLY Title Lines (No other text) -->
     ${headlineElements}
-
-    <!-- Bottom sub-phrase -->
-    <g transform="translate(64, ${Math.max(currentY + 16, 420)})">
-      <rect x="0" y="0" width="560" height="40" rx="20" fill="#000000" fill-opacity="0.45" stroke="#ffffff" stroke-width="1" stroke-opacity="0.20" />
-      <text x="22" y="27" fill="#ffd166" font-size="19" font-family="'Zen Maru Gothic Bold', 'Zen Maru Gothic', sans-serif" font-weight="bold" letter-spacing="1">
-        ✦ お店の玄関から顔が見えない安心環境・30分8,000円全額日払い ✦
-      </text>
-    </g>
   </svg>
   `;
 
@@ -353,7 +328,7 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
 async function main() {
   const rootDir = process.cwd();
   const articles: BlogArticle[] = (BLOG_ARTICLES as BlogArticle[]) || [];
-  console.log(`🎨 Starting generation of cinematic photo OGP cards for ${articles.length} articles...`);
+  console.log(`🎨 Starting generation of cinematic photo OGP cards for ${articles.length} articles (滝井新地 + Title only)...`);
 
   const publicImagesDir = path.join(rootDir, 'public', 'images');
   const srcImagesDir = path.join(rootDir, 'src', 'assets', 'images');
@@ -370,7 +345,7 @@ async function main() {
     {
       id: 'blog-index',
       slug: 'blog_index',
-      title: '【お仕事コラム】滝井新地で安心デビュー完全ガイド一覧',
+      title: 'お仕事コラム・完全ガイド一覧',
       category: 'beginner',
       summary: '',
       eyeCatch: '',
@@ -397,7 +372,7 @@ async function main() {
     }
   }
 
-  console.log(`🎉 Finished generating all ${count} cinematic cards with BIG 滝井新地 & unique photo backgrounds!`);
+  console.log(`🎉 Finished generating all ${count} cards with strictly 滝井新地 + Title only!`);
 }
 
 main().catch(console.error);

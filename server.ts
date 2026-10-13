@@ -1156,7 +1156,7 @@ JSONスキーマ：
       const cardFileName = `card_${article.slug}.jpg`;
       const hasCard = fs.existsSync(path.join(projectRootDir, "public", "images", cardFileName)) ||
                       fs.existsSync(path.join(distPath, "images", cardFileName));
-      const fullImageUrl = hasCard ? `${baseUrl}/images/${cardFileName}?v=20261013b` : toAbsoluteImageUrl(article.eyeCatch, baseUrl);
+      const fullImageUrl = hasCard ? `${baseUrl}/images/${cardFileName}?v=20261013c` : toAbsoluteImageUrl(article.eyeCatch, baseUrl);
       const articleUrl = `${baseUrl}/blog/${article.slug}`;
       const articleTitle = `滝井新地 ${article.title}`;
       const articleDesc = article.summary || `${article.title}についての詳しいお仕事解説記事です。`;
@@ -1222,7 +1222,7 @@ JSONスキーマ：
       let modifiedHtml = injectMetaIntoHtml(baseHtml, {
         title: "滝井新地 お仕事コラム一覧",
         description: "滝井新地のお仕事コラム・お役立ち情報一覧。給料システム、面接対策、身バレ防止、未経験からの働き方などを詳しく解説しています。",
-        imageUrl: `${baseUrl}/images/card_blog_index.jpg?v=20261013b`,
+        imageUrl: `${baseUrl}/images/card_blog_index.jpg?v=20261013c`,
         url: `${baseUrl}/blog`,
         type: "website",
       });
