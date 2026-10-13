@@ -165,7 +165,8 @@ function selectBackgroundForArticle(article: BlogArticle): string {
   return 'col_street_lanterns_1789107524691.jpg';
 }
 
-function splitTitleForEditorial(fullTitle: string): string[] {
+// Splits the title completely, preserving 100% of the text without any omission
+function splitTitleFull(fullTitle: string): string[] {
   let rest = fullTitle.trim();
   let badge = '';
 
@@ -180,37 +181,39 @@ function splitTitleForEditorial(fullTitle: string): string[] {
     lines.push(badge);
   }
 
-  const maxLineChars = 14;
-  const segments = rest.split(/(?<=[、・！？!?\s])/);
-  let currentLine = '';
+  // Target 15-17 characters per line for the remaining content
+  const idealChars = rest.length > 28 ? 16 : 14;
+  const parts = rest.split(/(?<=[、・！？!?\s])/);
+  let cur = '';
 
-  for (const seg of segments) {
-    if ((currentLine + seg).length <= maxLineChars) {
-      currentLine += seg;
+  for (const p of parts) {
+    if ((cur + p).length <= idealChars) {
+      cur += p;
     } else {
-      if (currentLine) {
-        lines.push(currentLine.trim());
-        currentLine = '';
-      }
-      if (seg.length > maxLineChars) {
-        for (let i = 0; i < seg.length; i += maxLineChars) {
-          const chunk = seg.substring(i, i + maxLineChars);
-          if (i + maxLineChars >= seg.length) {
-            currentLine = chunk;
+      if (cur) lines.push(cur.trim());
+      if (p.length > idealChars) {
+        for (let i = 0; i < p.length; i += idealChars) {
+          const chunk = p.substring(i, i + idealChars);
+          if (i + idealChars >= p.length) {
+            cur = chunk;
           } else {
             lines.push(chunk);
           }
         }
       } else {
-        currentLine = seg;
+        cur = p;
       }
     }
   }
-  if (currentLine) {
-    lines.push(currentLine.trim());
+  if (cur) lines.push(cur.trim());
+
+  // Prevent tiny trailing orphan line
+  if (lines.length >= 2 && lines[lines.length - 1].length <= 3) {
+    const last = lines.pop();
+    lines[lines.length - 1] += last;
   }
 
-  return lines.slice(0, 3);
+  return lines;
 }
 
 export async function generateOgCardForArticle(article: BlogArticle, outputDir: string): Promise<string> {
@@ -236,40 +239,45 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
       .toBuffer();
   }
 
-  // ONLY 滝井新地 + Title
-  const mainLines = splitTitleForEditorial(article.title);
+  // 100% of title included
+  const mainLines = splitTitleFull(article.title);
 
-  // Compute layout & SVG elements
-  const fontSize = mainLines.length >= 3 ? 48 : 52;
-  const lineStep = mainLines.length >= 3 ? 74 : 80;
-  let currentY = 168;
+  // Dynamic font sizing & vertical layout based on line count
+  const is4Lines = mainLines.length >= 4;
+  const fontSize = is4Lines ? 38 : (mainLines.length === 3 ? 44 : 48);
+  const lineStep = is4Lines ? 62 : (mainLines.length === 3 ? 72 : 78);
+
+  const totalHeight = mainLines.length * lineStep;
+  const currentY = Math.round(140 + (430 - totalHeight) / 2);
+
   let headlineElements = '';
+  let yPos = currentY;
 
   mainLines.forEach((line, idx) => {
     const escapedLine = escapeXml(line);
-    const textWidthApprox = Math.min(740, line.length * (fontSize * 1.02));
+    const textWidthApprox = Math.min(800, line.length * (fontSize * 1.02));
 
     if (idx === 0) {
-      // First line gets the warm coral-peach highlight box (like the reference sample!)
+      // First line gets the warm coral-peach highlight box
       headlineElements += `
-        <g transform="translate(64, ${currentY})">
-          <rect x="-10" y="0" width="${textWidthApprox + 28}" height="${fontSize + 24}" rx="12" fill="url(#peachPill)" />
-          <text x="4" y="${fontSize + 6}" fill="#ffffff" font-size="${fontSize}" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" letter-spacing="1.5">
+        <g transform="translate(64, ${yPos})">
+          <rect x="-10" y="0" width="${textWidthApprox + 28}" height="${fontSize + 20}" rx="10" fill="url(#peachPill)" />
+          <text x="4" y="${fontSize + 4}" fill="#ffffff" font-size="${fontSize}" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" letter-spacing="1.5">
             ${escapedLine}
           </text>
         </g>
       `;
     } else {
-      // Subsequent lines get large crisp white with dark drop-shadow
+      // Subsequent lines get large crisp white with subtle dark stroke and drop-shadow
       headlineElements += `
-        <g transform="translate(64, ${currentY})" filter="url(#textShadow)">
-          <text x="0" y="${fontSize + 10}" fill="#ffffff" font-size="${fontSize}" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" letter-spacing="1.5">
+        <g transform="translate(64, ${yPos})" filter="url(#textShadow)">
+          <text x="0" y="${fontSize + 8}" fill="#ffffff" stroke="#000000" stroke-width="3" stroke-opacity="0.35" paint-order="stroke fill" font-size="${fontSize}" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" letter-spacing="1.5">
             ${escapedLine}
           </text>
         </g>
       `;
     }
-    currentY += lineStep;
+    yPos += lineStep;
   });
 
   const svg = `
@@ -277,10 +285,10 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
     <defs>
       <!-- Horizontal vignette: dark on left for 100% text readability, transparent on right to showcase the woman & lanterns -->
       <linearGradient id="leftVignette" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#0a0408" stop-opacity="0.94" />
-        <stop offset="38%" stop-color="#10060e" stop-opacity="0.88" />
-        <stop offset="56%" stop-color="#140812" stop-opacity="0.65" />
-        <stop offset="78%" stop-color="#140812" stop-opacity="0.20" />
+        <stop offset="0%" stop-color="#0a0408" stop-opacity="0.95" />
+        <stop offset="42%" stop-color="#10060e" stop-opacity="0.90" />
+        <stop offset="60%" stop-color="#140812" stop-opacity="0.68" />
+        <stop offset="80%" stop-color="#140812" stop-opacity="0.18" />
         <stop offset="100%" stop-color="#140812" stop-opacity="0.0" />
       </linearGradient>
       <!-- Vibrant coral-rose gradient for big prominent 滝井新地 branding badge -->
@@ -302,14 +310,14 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
     <rect width="${width}" height="${height}" fill="url(#leftVignette)" />
 
     <!-- Top Left: 滝井新地 (BIG & PROMINENT BRANDING) -->
-    <g transform="translate(64, 48)">
-      <rect x="0" y="0" width="290" height="68" rx="34" fill="url(#brandGrad)" stroke="#ffffff" stroke-width="3" />
-      <text x="145" y="48" fill="#ffffff" font-size="40" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="4">
+    <g transform="translate(64, 46)">
+      <rect x="0" y="0" width="280" height="64" rx="32" fill="url(#brandGrad)" stroke="#ffffff" stroke-width="2.5" />
+      <text x="140" y="45" fill="#ffffff" font-size="38" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="4">
         🌸 滝井新地
       </text>
     </g>
 
-    <!-- ONLY Title Lines (No other text) -->
+    <!-- ALL Title Lines (100% of title included, strictly 滝井新地 + Title only) -->
     ${headlineElements}
   </svg>
   `;
@@ -328,7 +336,7 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
 async function main() {
   const rootDir = process.cwd();
   const articles: BlogArticle[] = (BLOG_ARTICLES as BlogArticle[]) || [];
-  console.log(`🎨 Starting generation of cinematic photo OGP cards for ${articles.length} articles (滝井新地 + Title only)...`);
+  console.log(`🎨 Starting generation of cinematic photo OGP cards for ${articles.length} articles (100% of title included)...`);
 
   const publicImagesDir = path.join(rootDir, 'public', 'images');
   const srcImagesDir = path.join(rootDir, 'src', 'assets', 'images');
@@ -345,7 +353,7 @@ async function main() {
     {
       id: 'blog-index',
       slug: 'blog_index',
-      title: 'お仕事コラム・完全ガイド一覧',
+      title: '【お仕事コラム】滝井新地で安心デビュー完全ガイド一覧',
       category: 'beginner',
       summary: '',
       eyeCatch: '',
@@ -372,7 +380,7 @@ async function main() {
     }
   }
 
-  console.log(`🎉 Finished generating all ${count} cards with strictly 滝井新地 + Title only!`);
+  console.log(`🎉 Finished generating all ${count} cards with full titles!`);
 }
 
 main().catch(console.error);
