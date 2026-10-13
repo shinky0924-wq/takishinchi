@@ -25,7 +25,7 @@ try {
 }
 
 interface BlogArticle {
-  id: string;
+  id: string | number;
   title: string;
   slug: string;
   category: string;
@@ -44,39 +44,110 @@ function escapeXml(unsafe: string): string {
     .replace(/'/g, '&apos;');
 }
 
-// Curated list of clean Japanese indoor & workplace photos directly related to Takii Shinchi
-const CLEAN_TAKII_PHOTOS = [
-  'col_ryotei_flow_1789107427433.jpg',       // 清潔な和風料亭の個室・お茶席
-  'jp_kimono_style_1789467837838.jpg',       // 上品で清潔感のある着物・浴衣姿の女性
-  'col_salary_savings_1789107442335.jpg',    // 手渡し給与・お給料袋と貯金
-  'col_vanity_trial_1789107497172.jpg',      // ドレッサー・お仕事メイクとヘアセット
-  'col_cafe_interview_1789107484817.jpg',    // カフェでのリラックス面談・相談
-  'col_studio_room_1789107471455.jpg',       // 清潔で快適なワンルーム寮
-  'jp_cast_tatami_1789467727461.jpg',        // 落ち着いた和室での接客イメージ
-  'jp_woman_salary_1789467749655.jpg',       // お給料の手渡し受取
-  'col_privacy_protect_1789107457068.jpg',   // プライバシー保護・静かな個室空間
-  'staff_lounge_support_1789108549559.jpg',  // 温かいスタッフサポートラウンジ
-  'jp_confident_smile_1789467788318.jpg',    // 笑顔で安心の女性スタッフ・キャスト
-  'jp_two_friends_1789467775509.jpg',        // 仲の良い同僚・ペア応募
-  'jp_skincare_glow_1789467940047.jpg',      // 美肌・スキンケアとお手入れ
-  'jp_savings_jar_1789468021098.jpg',        // 堅実な貯金と将来の目標
-  'jp_cozy_bedroom_1789468035819.jpg',       // 快適な寮生活・リラックスできる部屋
-  'jp_ryotei_manner_1789467980075.jpg',      // 料亭の丁寧なおもてなし・お茶
-  'ryotei_entrance_lantern_1789108525834.jpg', // 料亭の清潔な玄関の佇まい
-  'japanese_cast_woman.jpg',                 // 和装の女性キャスト
-  'takii_atmosphere_hero.jpg',               // 滝井新地の落ち着いた情緒
-  'japanese_hero_banner.jpg',                // 上品な和風料亭の内観
-  'jp_herbal_tea_1789468007366.jpg',         // お仕事後のリフレッシュハーブティー
-  'jp_warm_footbath_1789467870650.jpg',      // 足湯・セルフケア
-  'jp_bank_finance_1789467925368.jpg',       // 口座管理・安心の資金計画
-  'jp_fluffy_pancake_1789467858767.jpg',     // ご褒美カフェスイーツ
-  'jp_mother_child_1789467823272.jpg',       // シングルマザー支援・託児サポート
-  'jp_hand_mirror_1789467802719.jpg',        // 手鏡と笑顔チェック
-];
+interface ParsedCardContent {
+  badge: string;
+  line1: string;
+  line2: string;
+}
+
+export function parseTitleForCard(title: string, categoryLabel?: string): ParsedCardContent {
+  let rest = title.trim();
+  let badge = '';
+
+  const bracketMatch = rest.match(/^[【\[](.*?)[】\]]\s*/);
+  if (bracketMatch) {
+    badge = bracketMatch[1].trim();
+    rest = rest.slice(bracketMatch[0].length).trim();
+  }
+
+  // Strip emojis & brackets from badge
+  badge = badge.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}【】\[\]]/gu, '').trim();
+
+  // If badge is empty
+  if (!badge) {
+    if (rest.includes('仲居さん') || rest.includes('おばちゃん')) {
+      badge = 'おばちゃんの役割と安心サポート';
+    } else {
+      badge = categoryLabel || '滝井新地お仕事ガイド';
+    }
+  }
+
+  // Split rest into line1 and line2 cleanly without dropping ANY characters
+  let line1 = '';
+  let line2 = '';
+
+  if (rest.length <= 16) {
+    line1 = rest;
+    line2 = '';
+  } else {
+    // Check for natural sentence break with exclamation point
+    const exIdx = rest.indexOf('！') !== -1 ? rest.indexOf('！') : rest.indexOf('!');
+    if (exIdx >= 5 && exIdx <= 22 && exIdx < rest.length - 4) {
+      line1 = rest.slice(0, exIdx + 1).trim();
+      line2 = rest.slice(exIdx + 1).trim();
+    } else {
+      // Check for question mark
+      const qIndices: number[] = [];
+      for (let i = 0; i < rest.length; i++) {
+        if (rest[i] === '？' || rest[i] === '?') qIndices.push(i);
+      }
+      let bestQ = -1;
+      for (const q of qIndices) {
+        if (q >= 5 && q <= 24 && q < rest.length - 4) {
+          bestQ = q;
+        }
+      }
+      if (bestQ !== -1) {
+        line1 = rest.slice(0, bestQ + 1).trim();
+        line2 = rest.slice(bestQ + 1).trim();
+      } else {
+        // Check for quotes
+        const quoteIdx = rest.indexOf('」');
+        if (quoteIdx >= 6 && quoteIdx <= 22 && quoteIdx < rest.length - 4) {
+          line1 = rest.slice(0, quoteIdx + 1).trim();
+          line2 = rest.slice(quoteIdx + 1).trim();
+        } else {
+          // Check for natural particle near the midpoint
+          const target = Math.floor(rest.length / 2);
+          const particles = ['で', 'を', 'に', 'が', 'の', 'と', 'へ', 'から', 'は'];
+          let bestSplit = -1;
+          let bestDist = 999;
+          for (let i = 8; i < rest.length - 6; i++) {
+            if (particles.includes(rest[i])) {
+              const dist = Math.abs(i + 1 - target);
+              if (dist < bestDist) {
+                bestDist = dist;
+                bestSplit = i + 1;
+              }
+            }
+          }
+          if (bestSplit !== -1) {
+            line1 = rest.slice(0, bestSplit).trim();
+            line2 = rest.slice(bestSplit).trim();
+          } else {
+            line1 = rest.slice(0, target).trim();
+            line2 = rest.slice(target).trim();
+          }
+        }
+      }
+    }
+  }
+
+  // Prepend ・ to line2 if line2 exists and does not start with bullet/middle dot/dash
+  if (line2 && !line2.startsWith('・') && !line2.startsWith('-') && !line2.startsWith('「')) {
+    line2 = '・' + line2;
+  }
+
+  return {
+    badge: badge || 'お仕事徹底解説',
+    line1,
+    line2
+  };
+}
 
 function selectBackgroundForArticle(article: BlogArticle): string {
   const imagesDir = path.join(process.cwd(), 'public', 'images');
-  // Ensure 100% UNIQUE photographic background per article (col_unique_art_1.jpg to col_unique_art_100.jpg)
+  // 100% matched semantic photographic background per article
   const uniquePhoto = `col_unique_art_${article.id}.jpg`;
   if (fs.existsSync(path.join(imagesDir, uniquePhoto))) {
     return uniquePhoto;
@@ -84,65 +155,175 @@ function selectBackgroundForArticle(article: BlogArticle): string {
   return 'col_ryotei_flow_1789107427433.jpg';
 }
 
-// 短くメリハリのあるコピーを抽出（主役のピンク見出し ＋ 小さめの白文字補足）
-function getCatchyCopyForArticle(title: string): { mainCopy: string; subCopy: string } {
-  let rest = title.trim();
-  let badge = '';
-  const match = rest.match(/^[【\[](.*?)[】\]]\s*/);
-  if (match) {
-    badge = match[1].trim();
-    rest = rest.replace(/^[【\[].*?[】\]]\s*/, '').trim();
-  }
+export function buildCuteNoteCardSvg(content: ParsedCardContent): string {
+  const width = 1200;
+  const height = 630;
 
-  // Strip emojis, brackets, numbers artifacts
-  badge = badge.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}【】\[\]]/gu, '').trim();
-  rest = rest.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}【】\[\]]/gu, '').trim();
+  const escapedBadge = escapeXml(content.badge);
+  const escapedLine1 = escapeXml(content.line1);
+  const escapedLine2 = escapeXml(content.line2);
 
-  // 1. ピンクのメイン見出し（主役: 6〜14文字程度の強力なフレーズ）
-  let mainCopy = badge;
-  if (!mainCopy || mainCopy.length > 14) {
-    const parts = rest.split(/[！!？?、・\s]/).filter(Boolean);
-    mainCopy = parts[0] || badge || rest.slice(0, 13);
-  }
-  if (mainCopy.length > 14) {
-    mainCopy = mainCopy.slice(0, 13);
-  }
+  // Badge pill width (♥ badge ♥)
+  const badgeWidth = Math.min(640, Math.max(260, escapedBadge.length * 26 + 80));
+  const badgeX = (width - badgeWidth) / 2;
 
-  // 2. 補足コピー（小さめ: 10〜20文字程度の分かりやすい説明）
-  let subCopy = '';
-  const sentences = rest.split(/[！!？?]/).map(s => s.trim()).filter(Boolean);
-  if (sentences.length > 0 && sentences[0] !== mainCopy && sentences[0].length <= 20 && sentences[0].length >= 6) {
-    subCopy = sentences[0];
-  } else if (sentences.length > 1 && sentences[1].length <= 20 && sentences[1].length >= 6) {
-    subCopy = sentences[1];
+  // Header pill: "大阪　滝井新地" made prominent & larger
+  const headerWidth = 460;
+  const headerHeight = 66;
+  const headerX = (width - headerWidth) / 2;
+  const headerY = 20;
+
+  // Title sizing & positioning - dynamic scaling so text is never truncated
+  const hasLine2 = Boolean(content.line2);
+  let line1FontSize = 46;
+  if (!hasLine2) {
+    if (content.line1.length <= 14) line1FontSize = 52;
+    else if (content.line1.length <= 18) line1FontSize = 46;
+    else line1FontSize = Math.max(34, Math.floor(920 / content.line1.length));
   } else {
-    const cleaned = rest.replace(mainCopy, '').replace(/^[、・！!？?\s]+/, '').trim();
-    if (cleaned.length >= 6 && cleaned.length <= 20) {
-      subCopy = cleaned;
-    } else if (cleaned.length > 20) {
-      const chunks = cleaned.split(/[、・\s]/);
-      let acc = '';
-      for (const c of chunks) {
-        if ((acc + c).length <= 18) {
-          acc += (acc ? '・' : '') + c;
-        } else break;
-      }
-      subCopy = acc || cleaned.slice(0, 18);
-    } else {
-      subCopy = rest.slice(0, 18);
-    }
+    if (content.line1.length <= 12) line1FontSize = 46;
+    else if (content.line1.length <= 16) line1FontSize = 42;
+    else if (content.line1.length <= 20) line1FontSize = 38;
+    else line1FontSize = Math.max(32, Math.floor(920 / content.line1.length));
   }
 
-  subCopy = subCopy.replace(/[！!？?、・]$/, '').trim();
+  let line2FontSize = 40;
+  if (hasLine2) {
+    if (content.line2.length <= 14) line2FontSize = 42;
+    else if (content.line2.length <= 18) line2FontSize = 38;
+    else if (content.line2.length <= 22) line2FontSize = 35;
+    else if (content.line2.length <= 26) line2FontSize = 32;
+    else line2FontSize = Math.max(28, Math.floor(920 / content.line2.length));
+  }
 
-  return { mainCopy, subCopy };
+  const line1LetterSpacing = content.line1.length > 20 ? '1' : '2';
+  const line2LetterSpacing = content.line2.length > 24 ? '0.5' : content.line2.length > 18 ? '1' : '2';
+
+  const line1Y = hasLine2 ? 340 : 380;
+  const line2Y = 420;
+
+  // Highlighter marker calculations for line 2 (or line 1 if single line)
+  const targetHighlightLine = hasLine2 ? content.line2 : content.line1;
+  const targetFontSize = hasLine2 ? line2FontSize : line1FontSize;
+  const approxTextWidth = targetHighlightLine.length * targetFontSize * 0.96;
+  const highlightWidth = Math.min(940, approxTextWidth + 24);
+  const highlightX = (width - highlightWidth) / 2;
+  const highlightY = (hasLine2 ? line2Y : line1Y) - targetFontSize * 0.44;
+  const highlightHeight = Math.max(20, targetFontSize * 0.60);
+
+  return `
+  <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Soft blur for background bokeh -->
+      <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="30" />
+      </filter>
+      <!-- Card drop shadow -->
+      <filter id="cardShadow" x="-10%" y="-10%" width="130%" height="130%">
+        <feDropShadow dx="0" dy="12" stdDeviation="22" flood-color="#a82846" flood-opacity="0.22" />
+      </filter>
+      <!-- Header pill shadow -->
+      <filter id="headerShadow" x="-15%" y="-15%" width="130%" height="130%">
+        <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#b82645" flood-opacity="0.30" />
+      </filter>
+      <!-- Header Gradient (warm energetic coral to pink) -->
+      <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ff476e" />
+        <stop offset="100%" stop-color="#ff7b62" />
+      </linearGradient>
+      <!-- Dim overlay on background photo -->
+      <linearGradient id="bgDim" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#1a0a14" stop-opacity="0.26" />
+        <stop offset="100%" stop-color="#2a0f20" stop-opacity="0.42" />
+      </linearGradient>
+    </defs>
+
+    <!-- Darkening / tinting background overlay -->
+    <rect width="${width}" height="${height}" fill="url(#bgDim)" />
+
+    <!-- Soft bokeh glow balls around card edges -->
+    <circle cx="1080" cy="110" r="95" fill="#ffa7ba" opacity="0.25" filter="url(#softGlow)" />
+    <circle cx="120" cy="520" r="110" fill="#ffccd5" opacity="0.25" filter="url(#softGlow)" />
+    <circle cx="1120" cy="500" r="85" fill="#ffd1b3" opacity="0.20" filter="url(#softGlow)" />
+
+    <!-- Main White Rounded Card -->
+    <rect x="60" y="48" width="1080" height="534" rx="34" ry="34" fill="#ffffff" filter="url(#cardShadow)" />
+
+    <!-- Inner Dashed Border -->
+    <rect x="84" y="72" width="1032" height="486" rx="24" ry="24" fill="none" stroke="#f6a5b8" stroke-width="2.5" stroke-dasharray="9 9" />
+
+    <!-- 4 Corner Floral / Sparkle Accents -->
+    <!-- Top-Left Sakura Flower -->
+    <g transform="translate(122, 110)">
+      <circle cx="0" cy="0" r="4.5" fill="#e05370" />
+      <circle cx="0" cy="-9" r="4" fill="#fca5a5" />
+      <circle cx="8.5" cy="-2.7" r="4" fill="#fca5a5" />
+      <circle cx="5.2" cy="7.2" r="4" fill="#fca5a5" />
+      <circle cx="-5.2" cy="7.2" r="4" fill="#fca5a5" />
+      <circle cx="-8.5" cy="-2.7" r="4" fill="#fca5a5" />
+    </g>
+
+    <!-- Top-Right Sakura Flower -->
+    <g transform="translate(1078, 110)">
+      <circle cx="0" cy="0" r="4.5" fill="#e05370" />
+      <circle cx="0" cy="-9" r="4" fill="#fca5a5" />
+      <circle cx="8.5" cy="-2.7" r="4" fill="#fca5a5" />
+      <circle cx="5.2" cy="7.2" r="4" fill="#fca5a5" />
+      <circle cx="-5.2" cy="7.2" r="4" fill="#fca5a5" />
+      <circle cx="-8.5" cy="-2.7" r="4" fill="#fca5a5" />
+    </g>
+
+    <!-- Bottom-Left Sparkle Diamond -->
+    <g transform="translate(122, 524)" stroke="#e05370" stroke-width="1.8" fill="none">
+      <path d="M 0,-9 Q 0,0 9,0 Q 0,0 0,9 Q 0,0 -9,0 Q 0,0 0,-9 Z" />
+    </g>
+
+    <!-- Bottom-Right Sparkle Diamond -->
+    <g transform="translate(1078, 524)" stroke="#e05370" stroke-width="1.8" fill="none">
+      <path d="M 0,-9 Q 0,0 9,0 Q 0,0 0,9 Q 0,0 -9,0 Q 0,0 0,-9 Z" />
+    </g>
+
+    <!-- Top Center Badge: BIGGER "大阪　滝井新地" -->
+    <g transform="translate(${headerX}, ${headerY})" filter="url(#headerShadow)">
+      <rect x="0" y="0" width="${headerWidth}" height="${headerHeight}" rx="${headerHeight / 2}" fill="url(#headerGrad)" stroke="#ffffff" stroke-width="3.5" />
+      <text x="${headerWidth / 2}" y="45" fill="#ffffff" font-size="36" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="4">
+        ✿ 大阪　滝井新地 ✿
+      </text>
+    </g>
+
+    <!-- Sub-Badge / Category Pill: ♥ badge ♥ -->
+    <g transform="translate(${badgeX}, 206)">
+      <rect x="0" y="0" width="${badgeWidth}" height="44" rx="22" fill="#fff1f4" stroke="#e05370" stroke-width="2" />
+      <text x="${badgeWidth / 2}" y="31" fill="#c43054" font-size="24" font-family="'Zen Maru Gothic Bold', 'Zen Maru Gothic', sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="2">
+        ♥ ${escapedBadge} ♥
+      </text>
+    </g>
+
+    <!-- Highlight Marker Strip behind bottom line -->
+    <rect x="${highlightX}" y="${highlightY}" width="${highlightWidth}" height="${highlightHeight}" rx="${highlightHeight / 2}" fill="#fed7aa" opacity="0.75" />
+
+    <!-- Main Headline Line 1 -->
+    <text x="600" y="${line1Y}" fill="#2e1a2a" font-size="${line1FontSize}" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="${line1LetterSpacing}">
+      ${escapedLine1}
+    </text>
+
+    ${
+      hasLine2
+        ? `<!-- Main Headline Line 2 -->
+    <text x="600" y="${line2Y}" fill="#2e1a2a" font-size="${line2FontSize}" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="${line2LetterSpacing}">
+      ${escapedLine2}
+    </text>`
+        : ''
+    }
+  </svg>
+  `;
 }
 
 export async function generateOgCardForArticle(article: BlogArticle, outputDir: string): Promise<string> {
   const width = 1200;
   const height = 630;
 
-  // 1. 記事の内容に直結した清潔感のある和風・仕事現場の写真を選定
+  // 1. 記事の内容に直結した背景写真を選定（記事ごとに固有）
   const bgFileName = selectBackgroundForArticle(article);
   const baseImagePath = path.join(process.cwd(), 'public', 'images', bgFileName);
 
@@ -150,78 +331,21 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
   try {
     baseImgBuffer = await sharp(baseImagePath)
       .resize(width, height, { fit: 'cover', position: 'center' })
-      .modulate({ brightness: 1.05, saturation: 1.08 })
+      .blur(10)
+      .modulate({ brightness: 0.90, saturation: 1.12 })
       .toBuffer();
-  } catch (e) {
+  } catch {
     const fallbackPath = path.join(process.cwd(), 'public', 'images', 'col_ryotei_flow_1789107427433.jpg');
     baseImgBuffer = await sharp(fallbackPath)
       .resize(width, height, { fit: 'cover', position: 'center' })
-      .modulate({ brightness: 1.05, saturation: 1.08 })
+      .blur(10)
+      .modulate({ brightness: 0.90, saturation: 1.12 })
       .toBuffer();
   }
 
-  // 2. 短縮されたメイン見出し（ピンク主役）と小さめの補足（白文字）
-  const { mainCopy, subCopy } = getCatchyCopyForArticle(article.title);
-  const escapedMain = escapeXml(mainCopy);
-  const escapedSub = escapeXml(subCopy);
-
-  // 3. ピンク見出しを主役として際立たせるサイズ設計
-  const mainFontSize = mainCopy.length > 10 ? 46 : 52;
-  const pillWidth = Math.min(800, mainCopy.length * (mainFontSize * 1.02) + 40);
-
-  const svg = `
-  <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <!-- 左側の暗めグラデーション: 文字の視認性を100%確保しつつ、右側の和風写真を美しく見せる -->
-      <linearGradient id="leftVignette" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#080307" stop-opacity="0.95" />
-        <stop offset="38%" stop-color="#0e050c" stop-opacity="0.88" />
-        <stop offset="56%" stop-color="#120710" stop-opacity="0.65" />
-        <stop offset="78%" stop-color="#120710" stop-opacity="0.18" />
-        <stop offset="100%" stop-color="#120710" stop-opacity="0.0" />
-      </linearGradient>
-      <!-- 統一されたブランドロゴのグラデーション -->
-      <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#ff3366" />
-        <stop offset="100%" stop-color="#ff6b8b" />
-      </linearGradient>
-      <!-- 主役となるピンク見出しのピルグラデーション -->
-      <linearGradient id="heroPinkPill" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#ff476f" />
-        <stop offset="100%" stop-color="#ff7363" />
-      </linearGradient>
-      <filter id="textShadow" x="-10%" y="-10%" width="130%" height="130%">
-        <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000000" flood-opacity="0.92" />
-      </filter>
-    </defs>
-
-    <!-- 写真オーバーレイ -->
-    <rect width="${width}" height="${height}" fill="url(#leftVignette)" />
-
-    <!-- 4. 統一されたロゴ位置 (左上 X=64, Y=48) - 絵文字・数字なしの純粋な「滝井新地」 -->
-    <g transform="translate(64, 48)">
-      <rect x="0" y="0" width="220" height="54" rx="27" fill="url(#brandGrad)" stroke="#ffffff" stroke-width="2.5" />
-      <text x="110" y="38" fill="#ffffff" font-size="32" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="4">
-        滝井新地
-      </text>
-    </g>
-
-    <!-- 3. ピンクのメイン見出し（主役: 大きく目を引くボックス） -->
-    <g transform="translate(64, 160)">
-      <rect x="-8" y="0" width="${pillWidth}" height="${mainFontSize + 24}" rx="12" fill="url(#heroPinkPill)" stroke="#ffffff" stroke-width="2" stroke-opacity="0.4" />
-      <text x="12" y="${mainFontSize + 6}" fill="#ffffff" font-size="${mainFontSize}" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" letter-spacing="2">
-        ${escapedMain}
-      </text>
-    </g>
-
-    <!-- 2 & 3. 補足コピー（小さめの白文字でメリハリをつける） -->
-    <g transform="translate(64, ${160 + mainFontSize + 58})" filter="url(#textShadow)">
-      <text x="4" y="28" fill="#ffffff" stroke="#000000" stroke-width="2.5" stroke-opacity="0.4" paint-order="stroke fill" font-size="28" font-family="'Zen Maru Gothic Bold', 'Zen Maru Gothic', sans-serif" font-weight="bold" letter-spacing="1.5">
-        ${escapedSub}
-      </text>
-    </g>
-  </svg>
-  `;
+  // 2. タイトルのパース（【バッジ】＋2行構成）
+  const parsed = parseTitleForCard(article.title, article.categoryLabel);
+  const svg = buildCuteNoteCardSvg(parsed);
 
   const fileName = `card_${article.slug}.jpg`;
   const outPath = path.join(outputDir, fileName);
@@ -237,7 +361,7 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
 async function main() {
   const rootDir = process.cwd();
   const articles: BlogArticle[] = (BLOG_ARTICLES as BlogArticle[]) || [];
-  console.log(`🎨 Starting generation of refined editorial thumbnails for ${articles.length} articles...`);
+  console.log(`🎨 Generating cute editorial card thumbnails for ${articles.length} articles...`);
 
   const publicImagesDir = path.join(rootDir, 'public', 'images');
   const srcImagesDir = path.join(rootDir, 'src', 'assets', 'images');
@@ -254,8 +378,9 @@ async function main() {
     {
       id: 'blog-index',
       slug: 'blog_index',
-      title: '【お仕事コラム】滝井新地で安心デビュー完全ガイド一覧',
+      title: '【お仕事コラム一覧】滝井新地で安心デビュー完全ガイド',
       category: 'beginner',
+      categoryLabel: '滝井新地お仕事コラム',
       summary: '',
       eyeCatch: '',
     },
@@ -277,11 +402,13 @@ async function main() {
     }
     count++;
     if (count % 20 === 0 || count === articles.length) {
-      console.log(`✅ Generated ${count} / ${articles.length} refined cards`);
+      console.log(`✅ Generated ${count} / ${articles.length} cards`);
     }
   }
 
-  console.log(`🎉 Finished generating all ${count} refined cards with clean Takii photos, punchy pink headers & clear hierarchy!`);
+  console.log(`🎉 Finished generating all ${count} cards with enlarged 「大阪　滝井新地」, cute note card styling & semantic backgrounds!`);
 }
 
-main().catch(console.error);
+if (process.argv[1] && process.argv[1].includes('generate-og-cards')) {
+  main().catch(console.error);
+}

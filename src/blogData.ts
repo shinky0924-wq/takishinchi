@@ -73,7 +73,7 @@ export function getValidArticleEyeCatch(art: { id?: string | number; slug?: stri
   return '/images/japanese_hero_banner.jpg';
 }
 
-const BLOG_DATA_VERSION = '20261013_takishinchi_100unique_v20';
+const BLOG_DATA_VERSION = '20261013_takishinchi_osaka_cute_card_v22';
 
 export function sanitizeTakiiArticles(articles: BlogArticle[]): BlogArticle[] {
   if (!Array.isArray(articles)) return BLOG_ARTICLES;
