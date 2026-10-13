@@ -76,63 +76,11 @@ const CLEAN_TAKII_PHOTOS = [
 
 function selectBackgroundForArticle(article: BlogArticle): string {
   const imagesDir = path.join(process.cwd(), 'public', 'images');
-  const text = `${article.slug} ${article.title} ${article.category} ${(article.tags || []).join(' ')}`.toLowerCase();
-
-  // 1. 給料・日払い・稼ぎ・手渡し・貯金
-  if (text.includes('salary') || text.includes('給料') || text.includes('給与') || text.includes('日払い') || text.includes('手渡し') || text.includes('貯金') || text.includes('稼')) {
-    const list = ['col_salary_savings_1789107442335.jpg', 'jp_woman_salary_1789467749655.jpg', 'jp_savings_jar_1789468021098.jpg', 'jp_bank_finance_1789467925368.jpg'];
-    for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
+  // Ensure 100% UNIQUE photographic background per article (col_unique_art_1.jpg to col_unique_art_100.jpg)
+  const uniquePhoto = `col_unique_art_${article.id}.jpg`;
+  if (fs.existsSync(path.join(imagesDir, uniquePhoto))) {
+    return uniquePhoto;
   }
-
-  // 2. 身バレ防止・顔バレ対策・安心・安全・客層・プライバシー
-  if (text.includes('safety') || text.includes('安心') || text.includes('安全') || text.includes('身バレ') || text.includes('顔バレ') || text.includes('privacy') || text.includes('客層')) {
-    const list = ['col_privacy_protect_1789107457068.jpg', 'col_ryotei_flow_1789107427433.jpg', 'staff_lounge_support_1789108549559.jpg', 'ryotei_entrance_lantern_1789108525834.jpg'];
-    for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
-  }
-
-  // 3. 面接・体験入店・見学・初めての応募
-  if (text.includes('trial') || text.includes('体験') || text.includes('体入') || text.includes('面接') || text.includes('interview') || text.includes('応募')) {
-    const list = ['col_cafe_interview_1789107484817.jpg', 'col_vanity_trial_1789107497172.jpg', 'jp_confident_smile_1789467788318.jpg', 'staff_lounge_support_1789108549559.jpg'];
-    for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
-  }
-
-  // 4. 着物・浴衣・和装・メイク・美容
-  if (text.includes('kimono') || text.includes('着物') || text.includes('浴衣') || text.includes('和装') || text.includes('メイク') || text.includes('美容') || text.includes('beauty')) {
-    const list = ['jp_kimono_style_1789467837838.jpg', 'col_vanity_trial_1789107497172.jpg', 'jp_skincare_glow_1789467940047.jpg', 'jp_cast_tatami_1789467727461.jpg'];
-    for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
-  }
-
-  // 5. マンション寮・一人暮らし・出稼ぎ・住まい
-  if (text.includes('dorm') || text.includes('寮') || text.includes('一人暮らし') || text.includes('出稼ぎ') || text.includes('room') || text.includes('住')) {
-    const list = ['col_studio_room_1789107471455.jpg', 'jp_cozy_bedroom_1789468035819.jpg'];
-    for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
-  }
-
-  // 6. 友達・ペア・同僚
-  if (text.includes('friend') || text.includes('友達') || text.includes('ペア')) {
-    const list = ['jp_two_friends_1789467775509.jpg'];
-    for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
-  }
-
-  // 7. シングルマザー・子育て
-  if (text.includes('mother') || text.includes('シンママ') || text.includes('子育て')) {
-    const list = ['jp_mother_child_1789467823272.jpg'];
-    for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
-  }
-
-  // 8. 仕事内容・未経験・初心者・料亭のシステム
-  if (text.includes('beginner') || text.includes('未経験') || text.includes('仕事内容') || text.includes('完全受け身')) {
-    const list = ['col_ryotei_flow_1789107427433.jpg', 'jp_kimono_style_1789467837838.jpg', 'jp_cast_tatami_1789467727461.jpg'];
-    for (const f of list) if (fs.existsSync(path.join(imagesDir, f))) return f;
-  }
-
-  // 9. フォールバック: 記事IDに基づいて清潔な和風写真を決定
-  const numId = parseInt(article.id, 10) || 0;
-  const picked = CLEAN_TAKII_PHOTOS[numId % CLEAN_TAKII_PHOTOS.length];
-  if (fs.existsSync(path.join(imagesDir, picked))) {
-    return picked;
-  }
-
   return 'col_ryotei_flow_1789107427433.jpg';
 }
 
