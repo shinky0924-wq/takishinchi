@@ -171,20 +171,9 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
   const width = 1200;
   const height = 630;
 
-  // Resolve base image
+  // Resolve base image (clean, consistent warm Japanese aesthetic)
   const defaultImage = path.join(process.cwd(), 'public', 'images', 'japanese_hero_banner.jpg');
-  let baseImagePath = defaultImage;
-
-  if (article.eyeCatch) {
-    const rawPath = article.eyeCatch.replace(/^\//, '');
-    const candidate1 = path.join(process.cwd(), 'public', rawPath);
-    const candidate2 = path.join(process.cwd(), rawPath);
-    if (fs.existsSync(candidate1)) {
-      baseImagePath = candidate1;
-    } else if (fs.existsSync(candidate2)) {
-      baseImagePath = candidate2;
-    }
-  }
+  const baseImagePath = defaultImage;
 
   // Load, slightly blur & brighten base image for a soft, dreamy feminine backdrop
   let baseImgBuffer: Buffer;

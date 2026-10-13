@@ -271,7 +271,7 @@ async function main() {
   const blogListHtml = injectMetaIntoHtml(baseHtml, {
     title: '滝井新地 お仕事コラム一覧',
     description: '滝井新地で安心デビューするためのコラム・完全ガイド一覧。給料システム（30分8,000円・雑費ゼロ）、面接対策、身バレ防止、未経験からの働き方などを詳しく解説しています。',
-    imageUrl: `${baseDomain}/images/card_blog_index.jpg?v=3`,
+    imageUrl: `${baseDomain}/images/card_blog_index.jpg?v=20261013`,
     url: `${baseDomain}/blog`,
     type: 'website',
     bodyHtml: renderBlogListStaticHtml(articles, baseDomain)
@@ -288,7 +288,7 @@ async function main() {
       fs.mkdirSync(articleDir, { recursive: true });
     }
 
-    const cardRelativePath = `/images/card_${article.slug}.jpg?v=3`;
+    const cardRelativePath = `/images/card_${article.slug}.jpg?v=20261013`;
     const fullImageUrl = fs.existsSync(path.join(process.cwd(), 'public', 'images', `card_${article.slug}.jpg`))
       ? `${baseDomain}${cardRelativePath}`
       : toAbsoluteImageUrl(article.eyeCatch, baseDomain);
