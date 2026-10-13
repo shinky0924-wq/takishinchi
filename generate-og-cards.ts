@@ -176,6 +176,10 @@ function splitTitleFull(fullTitle: string): string[] {
     rest = rest.replace(/^[【\[].*?[】\]]\s*/, '').trim();
   }
 
+  // Strip any stray emoji or symbol codes
+  badge = badge.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+  rest = rest.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+
   const lines: string[] = [];
   if (badge) {
     lines.push(badge);
@@ -309,11 +313,11 @@ export async function generateOgCardForArticle(article: BlogArticle, outputDir: 
     <!-- Photo overlays -->
     <rect width="${width}" height="${height}" fill="url(#leftVignette)" />
 
-    <!-- Top Left: 滝井新地 (BIG & PROMINENT BRANDING) -->
+    <!-- Top Left: 滝井新地 (BIG & PROMINENT BRANDING - PURE TEXT ONLY, NO EMOJIS OR NUMBERS) -->
     <g transform="translate(64, 46)">
-      <rect x="0" y="0" width="280" height="64" rx="32" fill="url(#brandGrad)" stroke="#ffffff" stroke-width="2.5" />
-      <text x="140" y="45" fill="#ffffff" font-size="38" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="4">
-        🌸 滝井新地
+      <rect x="0" y="0" width="250" height="64" rx="32" fill="url(#brandGrad)" stroke="#ffffff" stroke-width="2.5" />
+      <text x="125" y="46" fill="#ffffff" font-size="38" font-family="'Zen Maru Gothic Black', 'Zen Maru Gothic', sans-serif" font-weight="900" text-anchor="middle" letter-spacing="6">
+        滝井新地
       </text>
     </g>
 
