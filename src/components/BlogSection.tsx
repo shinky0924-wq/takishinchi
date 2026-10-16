@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BLOG_CATEGORIES, BlogArticle, getValidArticleEyeCatch } from '../blogData';
 import { ArticleCardImage } from './ArticleCardImage';
-import { BookOpen, Calendar, Clock, Search, ArrowLeft, Tag, MessageCircle, ChevronRight, ChevronLeft, Sparkles, Send, ShieldCheck, HeartHandshake, Download, FileSpreadsheet } from 'lucide-react';
+import { BookOpen, Calendar, Clock, Search, ArrowLeft, Tag, MessageCircle, ChevronRight, ChevronLeft, Sparkles, Send, ShieldCheck, HeartHandshake } from 'lucide-react';
 
 interface BlogSectionProps {
   articles: BlogArticle[];
@@ -197,21 +197,9 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
                   />
                 </div>
 
-                {/* Info summary & Excel download */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <a
-                    href="/takishinchi_articles_url_list.xlsx"
-                    download="滝井新地_お仕事コラム記事URL一覧.xlsx"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-3.5 py-2 rounded-full transition-all shadow-xs hover:shadow-sm"
-                    title="全100記事のタイトル・URL・カテゴリーをエクセル(.xlsx)でダウンロード"
-                  >
-                    <FileSpreadsheet size={14} className="text-emerald-600" />
-                    <span>記事URL一覧 (Excel)</span>
-                    <Download size={12} className="text-emerald-500" />
-                  </a>
-                  <div className="text-xs font-sans text-[#6b4c55] bg-white px-4 py-2 rounded-full border border-pink-100 shadow-2xs">
-                    全 <span className="font-bold text-secondary font-mono text-sm">{filteredArticles.length}</span> 件のコラム
-                  </div>
+                {/* Info summary */}
+                <div className="text-xs font-sans text-[#6b4c55] bg-white px-4 py-2 rounded-full border border-pink-100 shadow-2xs">
+                  全 <span className="font-bold text-secondary font-mono text-sm">{filteredArticles.length}</span> 件のコラム
                 </div>
               </div>
 
