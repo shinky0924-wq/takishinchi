@@ -3075,6 +3075,14 @@ export function saveArticles(articles: BlogArticle[]) {
                 <Download size={14} />
                 {isDownloadingSource ? 'ダウンロード中...' : '開発用フルソースコードZIP (Node.js/React)'}
               </button>
+              <a
+                href="/takishinchi_articles_url_list.xlsx"
+                download="takishinchi_articles_url_list.xlsx"
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Download size={14} />
+                記事URL一覧エクセル (.xlsx / 全100記事)
+              </a>
             </div>
             <div className="mt-4 text-[10px] text-on-surface-variant opacity-70 leading-relaxed">
               ※AI Studio画面上部のGitHubアイコンからも直接リポジトリ（shinky0924-wq/takishinchi）へプッシュ可能です。
