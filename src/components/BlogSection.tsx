@@ -79,7 +79,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
       if (ogDesc) ogDesc.setAttribute('content', currentArticle.summary);
 
       const origin = typeof window !== 'undefined' ? (window.location.hostname.includes('localhost') ? 'https://osaka-takiishinchi.pages.dev' : window.location.origin) : 'https://osaka-takiishinchi.pages.dev';
-      const fullImageUrl = `${origin}/images/card_${currentArticle.slug}.jpg?v=20261013i`;
+      const fullImageUrl = `${origin}/images/card_${currentArticle.slug}.jpg?v=20261016a`;
 
       const ogImage = document.querySelector('meta[property="og:image"]');
       if (ogImage) ogImage.setAttribute('content', fullImageUrl);
@@ -239,7 +239,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
                         {/* Eyecatch Image */}
                         <div className="relative h-52 bg-rose-50/60 flex items-center justify-center overflow-hidden">
                           <ArticleCardImage
-                            src={`/images/card_${article.slug}.jpg?v=20261013i`}
+                            src={`/images/card_${article.slug}.jpg?v=20261016a`}
                             alt={article.title}
                             category={article.category}
                             categoryLabel={article.categoryLabel}
@@ -446,7 +446,7 @@ export default function BlogSection({ articles, selectedSlug, onSelectSlug, onCt
             {/* Cute OGP / Eyecatch Card Preview */}
             <div className="rounded-4xl bg-rose-50/50 overflow-hidden shadow-sm border-2 border-pink-100">
               <ArticleCardImage
-                src={`/images/card_${currentArticle!.slug}.jpg?v=20261013i`}
+                src={`/images/card_${currentArticle!.slug}.jpg?v=20261016a`}
                 alt={currentArticle!.title}
                 category={currentArticle!.category}
                 categoryLabel={currentArticle!.categoryLabel}
